@@ -1,10 +1,16 @@
+import os
 import random
+import shutil
 import time
 from tkinter import *
+from tkinter.filedialog import askopenfilename
+
 from ttkthemes import themed_tk as tk
 from tkinter import ttk, messagebox
 from PIL import ImageTk
 from PIL import Image
+
+ADDED_FILES = r'added_files'
 
 
 class UserDashboard:
@@ -51,7 +57,6 @@ class UserDashboard:
         add_frame = Frame(self.window)
         add_frame.place(x=46, y=115)
 
-
         self.add_dashboard_frame = ImageTk.PhotoImage \
             (file='images\\add_frame.png')
         self.add_panel = Label(add_frame, image=self.add_dashboard_frame, bg="white")
@@ -67,31 +72,47 @@ class UserDashboard:
         self.add_file = ImageTk.PhotoImage \
             (file='images\\add_file_button_red.png')
         self.add_file_button_red = Button(self.window, image=self.add_file,
-                                 font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
-                                 , borderwidth=0, background="white", cursor="hand2", command=self.click_add_file)
+                                          font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
+                                          , borderwidth=0, background="white", cursor="hand2",
+                                          command=self.click_add_file)
         self.add_file_button_red.place(x=200, y=225)
+
+        self.yscroll = Scrollbar(self.window)
+        self.yscroll.pack(side=RIGHT, fill=Y)
+
+        self.file_values = self.read_folder(ADDED_FILES)
+        self.lb = Listbox(self.window, width=70, height=20, selectmode=MULTIPLE, yscrollcommand=self.yscroll.set)
+        self.lb.place(x=472, y=160)
+
+        self.yscroll = Scrollbar(command=self.lb.yview, orient=VERTICAL)
+        self.yscroll.place(x=900, y=160)
+
+        for files in self.file_values:
+            self.lb.insert(END, files)
 
         self.remove_file = ImageTk.PhotoImage \
             (file='images\\remove_file_button_red.png')
         self.remove_file_button_red = Button(self.window, image=self.remove_file,
-                                 font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
-                                 , borderwidth=0, background="white", cursor="hand2", command=self.click_remove_file)
+                                             font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
+                                             , borderwidth=0, background="white", cursor="hand2",
+                                             command=self.click_remove_file)
         self.remove_file_button_red.place(x=200, y=325)
 
         self.combine_file = ImageTk.PhotoImage \
             (file='images\\combine_file_button_red.png')
         self.combine_file_button_red = Button(self.window, image=self.combine_file,
-                                             font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
-                                             , borderwidth=0, background="white", cursor="hand2",
-                                             command=self.click_combine_file)
+                                              font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
+                                              , borderwidth=0, background="white", cursor="hand2",
+                                              command=self.click_combine_file)
         self.combine_file_button_red.place(x=1000, y=225)
 
         self.concatenate_file = ImageTk.PhotoImage \
             (file='images\\concatenate_file_button_red.png')
         self.concatenate_file_button_red = Button(self.window, image=self.concatenate_file,
-                                             font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
-                                             , borderwidth=0, background="white", cursor="hand2",
-                                             command=self.click_concatenate_file)
+                                                  font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                                  activebackground="white"
+                                                  , borderwidth=0, background="white", cursor="hand2",
+                                                  command=self.click_concatenate_file)
         self.concatenate_file_button_red.place(x=1000, y=325)
 
     def click_concatenate_file(self):
@@ -101,11 +122,49 @@ class UserDashboard:
         return
 
     def click_remove_file(self):
-        return
+        # Todo able to delete multiple files.
+        try:
+            selected = self.lb.curselection()
+            for index in selected[::-1]:
+                self.lb.delete(index)
+                file_name = self.lb.get(index)
+                print(file_name)
+                file_location = ADDED_FILES + '\\' + file_name
+                print(file_location)
+                if os.path.exists(file_location):
+                    os.remove(file_location)
+
+                    self.window.deiconify()
+                    messagebox.showinfo("Removed File", "The removed file was: \n {}".format(file_name))
+
+        except IndexError:
+            pass
 
     def click_add_file(self):
-        return
+        # Todo check if the file already exists.
+        data = [('All files', '*.*')]
+        file = askopenfilename(filetypes=data, defaultextension=data,
+                               title='Please select a file:')
+        ask = ''
+        if len(file) != 0:
+            self.window.deiconify()
+            ask = messagebox.showinfo("Selected File", "The added file is: \n {}".format(file))
+            file_name = os.path.basename(file)
+            shutil.copyfile(file, file_name)
+            shutil.move(file_name, ADDED_FILES)
+            self.lb.insert(END, file_name)
+        else:
+            self.window.deiconify()
+            ask = messagebox.showinfo("Selected File", "No File was selected")
 
+    def read_folder(self, url):
+        values = []
+        for (root, dirs, files) in os.walk(url):
+            for file in files:
+                fileName = os.path.basename(file)
+                values.append(fileName)
+
+        return values
 
     def click_exit(self):
         self.window.deiconify()
