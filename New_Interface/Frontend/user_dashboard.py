@@ -141,21 +141,24 @@ class UserDashboard:
             pass
 
     def click_add_file(self):
-        # Todo check if the file already exists.
         data = [('All files', '*.*')]
         file = askopenfilename(filetypes=data, defaultextension=data,
                                title='Please select a file:')
-        ask = ''
         if len(file) != 0:
-            self.window.deiconify()
-            ask = messagebox.showinfo("Selected File", "The added file is: \n {}".format(file))
             file_name = os.path.basename(file)
-            shutil.copyfile(file, file_name)
-            shutil.move(file_name, ADDED_FILES)
-            self.lb.insert(END, file_name)
+            url = ADDED_FILES + '/' + file_name
+            exists = os.path.exists(url)
+            if exists:
+                messagebox.showinfo("Selected File", "The file already exists: \n {}".format(file_name))
+            else:
+                self.window.deiconify()
+                messagebox.showinfo("Selected File", "The added file is: \n {}".format(file))
+                shutil.copyfile(file, file_name)
+                shutil.move(file_name, ADDED_FILES)
+                self.lb.insert(END, file_name)
         else:
             self.window.deiconify()
-            ask = messagebox.showinfo("Selected File", "No File was selected")
+            messagebox.showinfo("Selected File", "No File was selected")
 
     def read_folder(self, url):
         values = []
