@@ -138,6 +138,17 @@ def combine_data(
 
     return (data, features, labels)
 
+def common_Field(DatasetList):
+    """
+    Take a list of columns 
+    Example A = ['1','2','3'] ; B = ['10','20','3'];C = ['2','3','333']; DatasetList = [A,B,C]
+    :param DatasetList: A list of dataset's columns 
+     
+    :return: the  common field
+    """
+    u, c = np.unique(DatasetList, return_counts=True)
+    dup = u[c == DatasetList.shape[0]]
+    return dup[0]
 
 def concatenate(features, labels):
     """
