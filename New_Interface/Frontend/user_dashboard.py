@@ -9,9 +9,10 @@ from ttkthemes import themed_tk as tk
 from tkinter import ttk, messagebox
 from PIL import ImageTk
 from PIL import Image
+import New_Interface.Frontend.combine_files as combine_files
 
-ADDED_FILES = r'added_files'
-
+#ADDED_FILES = r'added_files'
+file_path = []
 
 class UserDashboard:
     def __init__(self, window):
@@ -77,18 +78,18 @@ class UserDashboard:
                                           command=self.click_add_file)
         self.add_file_button_red.place(x=200, y=225)
 
-        self.yscroll = Scrollbar(self.window)
-        self.yscroll.pack(side=RIGHT, fill=Y)
+        # self.yscroll = Scrollbar(self.window)
+        # self.yscroll.pack(side=RIGHT, fill=Y)
 
-        self.file_values = self.read_folder(ADDED_FILES)
-        self.lb = Listbox(self.window, width=70, height=20, selectmode=MULTIPLE, yscrollcommand=self.yscroll.set)
+        #self.file_values = self.read_folder(ADDED_FILES)
+        self.lb = Listbox(self.window, width=70, height=20, selectmode=MULTIPLE)
         self.lb.place(x=472, y=160)
 
-        self.yscroll = Scrollbar(command=self.lb.yview, orient=VERTICAL)
-        self.yscroll.place(x=900, y=160)
+        # self.yscroll = Scrollbar(command=self.lb.yview, orient=VERTICAL)
+        # self.yscroll.place(x=900, y=160)
 
-        for files in self.file_values:
-            self.lb.insert(END, files)
+        # for files in self.file_values:
+        #     self.lb.insert(END, files)
 
         self.remove_file = ImageTk.PhotoImage \
             (file='images\\remove_file_button_red.png')
@@ -119,23 +120,35 @@ class UserDashboard:
         return
 
     def click_combine_file(self):
-        return
+        win = Toplevel()
+        object = UserDashboard
+        combine_files.CombineFiles(win,object.get_selection(self))
+        self.window.withdraw()
+        win.deiconify()
+
+    def get_selection(self):
+        value = []
+        selected = self.lb.curselection()
+        for index in selected[::-1]:
+            one_element = file_path[index]
+            value.append(one_element)
+        return value
 
     def click_remove_file(self):
-        # Todo able to delete multiple files.
         try:
             selected = self.lb.curselection()
             for index in selected[::-1]:
-                self.lb.delete(index)
+                file_path.pop(index)
                 file_name = self.lb.get(index)
-                print(file_name)
-                file_location = ADDED_FILES + '\\' + file_name
-                print(file_location)
-                if os.path.exists(file_location):
-                    os.remove(file_location)
-
-                    self.window.deiconify()
-                    messagebox.showinfo("Removed File", "The removed file was: \n {}".format(file_name))
+                self.lb.delete(index)
+                # print(file_name)
+                # file_location = ADDED_FILES + '\\' + file_name
+                # print(file_location)
+                # if os.path.exists(file_location):
+                #     os.remove(file_location)
+                #
+                #     self.window.deiconify()
+                messagebox.showinfo("Removed File", "The removed file was: \n {}".format(file_name))
 
         except IndexError:
             pass
@@ -145,20 +158,21 @@ class UserDashboard:
         file = askopenfilename(filetypes=data, defaultextension=data,
                                title='Please select a file:')
         if len(file) != 0:
+            file_path.append(file)
             file_name = os.path.basename(file)
-            url = ADDED_FILES + '/' + file_name
-            exists = os.path.exists(url)
-            if exists:
-                messagebox.showinfo("Selected File", "The file already exists: \n {}".format(file_name))
-            else:
-                self.window.deiconify()
-                messagebox.showinfo("Selected File", "The added file is: \n {}".format(file))
-                shutil.copyfile(file, file_name)
-                shutil.move(file_name, ADDED_FILES)
-                self.lb.insert(END, file_name)
-        else:
-            self.window.deiconify()
-            messagebox.showinfo("Selected File", "No File was selected")
+            # url = ADDED_FILES + '/' + file_name
+            # exists = os.path.exists(url)
+            # if exists:
+            #     messagebox.showinfo("Selected File", "The file already exists: \n {}".format(file_name))
+            # else:
+                # self.window.deiconify()
+            messagebox.showinfo("Selected File", "The added file is: \n {}".format(file))
+                # shutil.copyfile(file, file_name)
+                # shutil.move(file_name, ADDED_FILES)
+            self.lb.insert(END, file_name)
+        # else:
+        #     self.window.deiconify()
+        #     messagebox.showinfo("Selected File", "No File was selected")
 
     def read_folder(self, url):
         values = []
