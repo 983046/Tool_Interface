@@ -146,10 +146,16 @@ def common_Field(DatasetList):
      
     :return: the  common field
     """
-    u, c = np.unique(DatasetList, return_counts=True)
-    dup = u[c == DatasetList.shape[0]]
+    
+    for i , data in enumerate(DatasetList,0):
+        if i ==0 :
+            flatted= data
+        else:
+            flatted = np.concatenate((flatten,data))
+            
+    u, c = np.unique(flatted, return_counts=True)
+    dup = u[c == len(DatasetList)]
     return dup[0]
-
 def concatenate(features, labels):
     """
     Joins features and labels together.
