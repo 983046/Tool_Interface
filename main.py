@@ -151,7 +151,7 @@ def common_Field(DatasetList):
         if i ==0 :
             flatted= data
         else:
-            flatted = np.concatenate((flatten,data))
+            flatted = np.concatenate((flatted,data))
             
     u, c = np.unique(flatted, return_counts=True)
     dup = u[c == len(DatasetList)]
