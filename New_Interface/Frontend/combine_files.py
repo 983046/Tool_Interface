@@ -15,8 +15,9 @@ from PIL import Image
 import New_Interface.Frontend.user_dashboard as user_dashboard
 import pandas as pd
 
+
 class CombineFiles:
-    def __init__(self,window, dashboard_selection):
+    def __init__(self, window, dashboard_selection):
         self.window = window
         self.window.geometry("1366x720+0+0")
         self.window.title("Combine Data Dashboard")
@@ -41,7 +42,7 @@ class CombineFiles:
         self.cred_frame.place(x=100, y=100)
 
         self.selected_data_label = Label(self.cred_frame, text="Selected Data: ", bg="white", fg="#4f4e4d",
-                                    font=("yu gothic ui", 13, "bold"))
+                                         font=("yu gothic ui", 13, "bold"))
         self.selected_data_label.place(x=15, y=10)
 
         self.lb = Listbox(self.window, width=50, height=3)
@@ -49,9 +50,10 @@ class CombineFiles:
         self.listbox_object = dashboard_selection
         for item in self.listbox_object:
             self.file_name = os.path.basename(item)
-            self.lb.insert(END,self.file_name)
+            self.lb.insert(END, self.file_name)
 
         read_file(self)
+
 
 def read_file(self):
     read_file_and_columns = []
@@ -60,8 +62,7 @@ def read_file(self):
             file = pd.read_sas(file)
             file = file.columns.to_numpy().astype('str').tolist()
             read_file_and_columns.append(file)
-            check_similarity(read_file_and_columns)
-            read_file_and_columns.clear()
+
         elif file.endswith('.CSV'):
             file = pd.read_sas(file)
             read_file_and_columns.append(file.columns)
@@ -71,40 +72,35 @@ def read_file(self):
         else:
             messagebox.showerror("Program not optimized", "The program is not optimized for this filename type: "
                                                           "\n {}".format(file))
-
-# def to_str(var):
-#     return str(list(np.reshape(np.asarray(var), (1, np.size(var)))[0]))[1:-1]
+    check_similarity(read_file_and_columns)
 
 
 values = []
 similar_values = []
+
 def check_similarity(read_file_and_columns):
-    new_array = []
+    rows=[]
+    columns = []
     for i in read_file_and_columns:
         for j in i:
-            new_array.append(j)
+            columns.append(j)
+        rows.append(columns)
+    np_array = np.array(rows)
+    common = common_Field(np_array)
+    print(np_array)
+    print(common)
 
-    for elements in new_array:
-        if elements in values:
-            print(elements)
-            similar_values.append(elements)
-        else:
-            values.append(elements)
+def common_Field(datasetList):
+    """
+    Take a list of columns
+    Example A = ['1','2','3'] ; B = ['10','20','3'];C = ['2','3','333']; DatasetList = [A,B,C]
+    :param DatasetList: A list of dataset's columns
 
-    new_array.clear()
-    print(similar_values)
-
-
-
-
-
-
-
-
-
-
-
-
+    :return: the  common field
+    """
+    u, c = np.unique(datasetList, return_counts=True)
+    dup = u[c == datasetList.shape[0]]
+    return dup
 
 
 def win():
