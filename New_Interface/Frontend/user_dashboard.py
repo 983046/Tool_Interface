@@ -11,6 +11,7 @@ from PIL import ImageTk
 from PIL import Image
 import New_Interface.Frontend.combine_files as combine_files
 import New_Interface.Frontend.concatenate_files as concatenate_files
+import pandas as pd
 
 file_path = []
 
@@ -117,8 +118,8 @@ class UserDashboard:
                                                   command=self.click_concatenate_file)
         self.concatenate_file_button_red.place(x=1000, y=325)
 
-    def insert_to_added_list(self,file):
-        self.lb.insert(END, file)
+    # def insert_to_added_list(self,file):
+    #     self.lb.insert(END, file)
 
 
     def click_concatenate_file(self):
@@ -132,12 +133,9 @@ class UserDashboard:
 
 
     def click_combine_file(self):
-        # win = Toplevel()
-        # object = UserDashboard
-        # combine_files.CombineFiles(win,object.get_selection(self))
-        # self.window.withdraw()
-        # win.deiconify()
-        return
+        combine_files.CombineFiles(self.get_selection())
+
+
 
     def get_selection(self):
         value = []
@@ -165,6 +163,24 @@ class UserDashboard:
 
         except IndexError:
             pass
+
+    def read_selected_files(self):
+        files = []
+        for file in self.listbox_object:
+            if file.endswith('.XPT'):
+                file = pd.read_sas(file)
+                files.append(file)
+            elif file.endswith('.CSV'):
+                file = pd.read_sas(file)
+                files.append(file)
+            elif file.endswith('.XLSX'):
+                file = pd.read_excel(file, index_col=0)
+                files.append(file)
+            else:
+                messagebox.showerror("Program not optimized", "The program is not optimized for this filename type: "
+                                                              "\n {}".format(file))
+        return files
+
 
     def click_add_file(self):
         data = [('All files', '*.*')]

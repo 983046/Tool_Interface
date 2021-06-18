@@ -1,21 +1,18 @@
-def read_Combine_Data(listOfFiles, commonField='SEQN'):
-    '''
-       read a list of files and combine them. This accept XPT and CSV
-       @listOfFiles : array contains all files
-       @commonField : a common filed in all given files
-       @retun : combined dataset
-    '''
-    datasets = []
-    for file in listOfFiles:
-        if file.endswith('.XPT'):
-            datasets.append(pd.read_sas(file))
-        else:
-            datasets.append(pd.read_csv(file))
+from tkinter import messagebox
 
-    for i, dataset in enumerate(datasets):
-        if i == 0:
-            merged_dataset = dataset
-        else:
-            merged_dataset = pd.merge(merged_dataset,
-                                      dataset, on=commonField)
-    return merged_dataset
+from New_Interface.Frontend.user_dashboard import UserDashboard
+import numpy as np
+
+
+class UserDashboard(UserDashboard):
+    def __init__(self, dashboard_selection):
+        self.listbox_object = dashboard_selection
+        self.files = self.read_selected_files()
+        for i, dataset in enumerate(self.files):
+            if i == 0:
+                merged_dataset = dataset
+            else:
+                merged_dataset = np.concatenate([merged_dataset, dataset], axis=1)
+        messagebox.showinfo("Combined  Data", "Data was combined:")
+
+    # todo Need to do something with the data, (i.e. save)

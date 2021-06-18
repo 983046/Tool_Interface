@@ -48,6 +48,7 @@ class ConcatenateFiles(UserDashboard):
                                   , borderwidth=0, background="white", cursor="hand2", command=self.click_exit)
         self.exit_button.place(x=1260, y=55)
 
+        self.set_frame()
 
         self.lb_selection = Listbox(self.window, width=50, height=3)
         self.lb_selection.place(x=150, y=250)
@@ -71,10 +72,6 @@ class ConcatenateFiles(UserDashboard):
                                                    command=self.click_concatenate_files)
         self.concatenate_files_button_red.place(x=1000, y=325)
 
-        self.set_frame()
-
-
-
     def set_frame(self):
         add_frame = Frame(self.window)
         add_frame.place(x=46, y=115)
@@ -93,36 +90,26 @@ class ConcatenateFiles(UserDashboard):
 
     def click_concatenate_files(self):
         selected = self.lb_common.curselection()
-        files = self.read_selected_files()
+        selected_files = self.extract_common_features()
+        one_element = ''
+        for index in selected[::-1]:
+            one_element = selected_files[index]
 
+        print(one_element)
+        files = self.read_selected_files()
+        merged_dataset = pd
         for i, dataset in enumerate(files):
             if i == 0:
                 merged_dataset = dataset
             else:
                 merged_dataset = pd.merge(merged_dataset,
-                                          dataset, on=selected)
-        self.insert_to_added_list(merged_dataset)
+                                          dataset, on=one_element)
+        messagebox.showinfo("Merged Data", "Data was merged on: \n {}".format(one_element))
+
+        # todo Need to do something with the data, (i.e. save)
 
 
-    def file_names(self):
-        return
 
-    def read_selected_files(self):
-        files = []
-        for file in self.listbox_object:
-            if file.endswith('.XPT'):
-                file = pd.read_sas(file)
-                files.append(file)
-            elif file.endswith('.CSV'):
-                file = pd.read_sas(file)
-                files.append(file)
-            elif file.endswith('.XLSX'):
-                file = pd.read_excel(file, index_col=0)
-                files.append(file)
-            else:
-                messagebox.showerror("Program not optimized", "The program is not optimized for this filename type: "
-                                                              "\n {}".format(file))
-        return files
 
     def extract_common_features(self):
         files = self.read_selected_files()
