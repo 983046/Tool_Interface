@@ -11,7 +11,6 @@ from PIL import ImageTk
 from PIL import Image
 import New_Interface.Frontend.combine_files as combine_files
 
-#ADDED_FILES = r'added_files'
 file_path = []
 
 class UserDashboard:
