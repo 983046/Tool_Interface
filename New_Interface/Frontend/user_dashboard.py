@@ -10,8 +10,10 @@ from tkinter import ttk, messagebox
 from PIL import ImageTk
 from PIL import Image
 import New_Interface.Frontend.combine_files as combine_files
+import New_Interface.Frontend.concatenate_files as concatenate_files
 
 file_path = []
+
 
 class UserDashboard:
     def __init__(self, window):
@@ -80,7 +82,7 @@ class UserDashboard:
         # self.yscroll = Scrollbar(self.window)
         # self.yscroll.pack(side=RIGHT, fill=Y)
 
-        #self.file_values = self.read_folder(ADDED_FILES)
+        # self.file_values = self.read_folder(ADDED_FILES)
         self.lb = Listbox(self.window, width=70, height=20, selectmode=MULTIPLE)
         self.lb.place(x=472, y=160)
 
@@ -115,15 +117,27 @@ class UserDashboard:
                                                   command=self.click_concatenate_file)
         self.concatenate_file_button_red.place(x=1000, y=325)
 
+    def insert_to_added_list(self,file):
+        self.lb.insert(END, file)
+
+
     def click_concatenate_file(self):
-        return
+        if self.get_selection() != []:
+            win = Toplevel()
+            concatenate_files.ConcatenateFiles(win, self.get_selection())
+            self.window.withdraw()
+            win.deiconify()
+        else:
+            messagebox.showinfo("No file selected", "No file was selected")
+
 
     def click_combine_file(self):
-        win = Toplevel()
-        object = UserDashboard
-        combine_files.CombineFiles(win,object.get_selection(self))
-        self.window.withdraw()
-        win.deiconify()
+        # win = Toplevel()
+        # object = UserDashboard
+        # combine_files.CombineFiles(win,object.get_selection(self))
+        # self.window.withdraw()
+        # win.deiconify()
+        return
 
     def get_selection(self):
         value = []
@@ -164,10 +178,10 @@ class UserDashboard:
             # if exists:
             #     messagebox.showinfo("Selected File", "The file already exists: \n {}".format(file_name))
             # else:
-                # self.window.deiconify()
+            # self.window.deiconify()
             messagebox.showinfo("Selected File", "The added file is: \n {}".format(file))
-                # shutil.copyfile(file, file_name)
-                # shutil.move(file_name, ADDED_FILES)
+            # shutil.copyfile(file, file_name)
+            # shutil.move(file_name, ADDED_FILES)
             self.lb.insert(END, file_name)
         # else:
         #     self.window.deiconify()
