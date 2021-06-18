@@ -58,7 +58,7 @@ def read_file(self):
     for file in self.listbox_object:
         if file.endswith('.XPT'):
             file = pd.read_sas(file)
-            file = file.columns.to_numpy().tolist()
+            file = file.columns.to_numpy().astype('str').tolist()
             read_file_and_columns.append(file)
             check_similarity(read_file_and_columns)
             read_file_and_columns.clear()
@@ -72,19 +72,30 @@ def read_file(self):
             messagebox.showerror("Program not optimized", "The program is not optimized for this filename type: "
                                                           "\n {}".format(file))
 
+# def to_str(var):
+#     return str(list(np.reshape(np.asarray(var), (1, np.size(var)))[0]))[1:-1]
+
+
+values = []
+similar_values = []
 def check_similarity(read_file_and_columns):
-    values = []
-    similar_values = []
-    if not values:
-        for elements in read_file_and_columns:
+    new_array = []
+    for i in read_file_and_columns:
+        for j in i:
+            new_array.append(j)
+
+    for elements in new_array:
+        if elements in values:
+            print(elements)
+            similar_values.append(elements)
+        else:
             values.append(elements)
-    else:
-        for elements in read_file_and_columns:
-            if elements in values:
-                similar_values.append(elements)
-            else:
-                values.append(elements)
+
+    new_array.clear()
     print(similar_values)
+
+
+
 
 
 
