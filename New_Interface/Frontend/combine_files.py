@@ -57,23 +57,27 @@ class CombineFiles:
 
 def read_file(self):
     read_file_and_columns = []
+    Columns_list = []
     for file in self.listbox_object:
         if file.endswith('.XPT'):
             file = pd.read_sas(file)
-            file = file.columns.to_numpy().astype('str').tolist()
+            Columns_list.append(ile.columns)
+            #file = file.columns.to_numpy().astype('str').tolist()
             read_file_and_columns.append(file)
 
         elif file.endswith('.CSV'):
             file = pd.read_sas(file)
             read_file_and_columns.append(file.columns)
+            Columns_list.append(ile.columns)
         elif file.endswith('.XLSX'):
             file = pd.read_excel(file, index_col=0)
             read_file_and_columns.append(file.columns)
+            Columns_list.append(ile.columns)
         else:
             messagebox.showerror("Program not optimized", "The program is not optimized for this filename type: "
                                                           "\n {}".format(file))
     check_similarity(read_file_and_columns)
-
+    #here calll the function with Columns_list
 
 values = []
 similar_values = []
