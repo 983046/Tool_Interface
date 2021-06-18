@@ -12,8 +12,9 @@ from ttkthemes import themed_tk as tk
 from tkinter import ttk, messagebox
 from PIL import ImageTk
 from PIL import Image
-from New_Interface.Frontend.user_dashboard import UserDashboard
 import pandas as pd
+
+from New_Interface.Frontend.user_dashboard import UserDashboard
 
 
 class ConcatenateFiles(UserDashboard):
@@ -107,8 +108,6 @@ class ConcatenateFiles(UserDashboard):
         messagebox.showinfo("Merged Data", "Data was merged on: \n {}".format(one_element))
 
         # todo Need to do something with the data, (i.e. save)
-
-
 
 
     def extract_common_features(self):

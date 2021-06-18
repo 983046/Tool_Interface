@@ -9,8 +9,8 @@ from ttkthemes import themed_tk as tk
 from tkinter import ttk, messagebox
 from PIL import ImageTk
 from PIL import Image
-import New_Interface.Frontend.combine_files as combine_files
 import New_Interface.Frontend.concatenate_files as concatenate_files
+import New_Interface.Frontend.combine_files as combine_files
 import pandas as pd
 
 file_path = []
@@ -133,6 +133,7 @@ class UserDashboard:
 
 
     def click_combine_file(self):
+        win = Toplevel()
         combine_files.CombineFiles(self.get_selection())
 
 
