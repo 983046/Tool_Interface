@@ -1,17 +1,11 @@
 import os
-import random
-import shutil
-import time
-from collections import Iterable
-from itertools import chain
+
 from tkinter import *
-from tkinter.filedialog import askopenfilename
 import numpy as np
 
 from ttkthemes import themed_tk as tk
 from tkinter import ttk, messagebox
 from PIL import ImageTk
-from PIL import Image
 import pandas as pd
 
 from New_Interface.Frontend.user_dashboard import UserDashboard

@@ -1,6 +1,7 @@
 from tkinter import *
 from ttkthemes import themed_tk as tk
-import New_Interface.Frontend.user_dashboard as user_dashboard
+
+from New_Interface.Frontend.user_dashboard import UserDashboard
 
 
 class StartApp:
@@ -8,7 +9,7 @@ class StartApp:
         # todo Add login feature
         self.window = window
         win = Toplevel()
-        user_dashboard.UserDashboard(win)
+        UserDashboard(win)
         self.window.withdraw()
         win.deiconify()
 

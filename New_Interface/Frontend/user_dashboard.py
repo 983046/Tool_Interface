@@ -1,6 +1,5 @@
 import os
-import random
-import shutil
+
 import time
 from tkinter import *
 from tkinter.filedialog import askopenfilename
@@ -8,9 +7,6 @@ from tkinter.filedialog import askopenfilename
 from ttkthemes import themed_tk as tk
 from tkinter import ttk, messagebox
 from PIL import ImageTk
-from PIL import Image
-import New_Interface.Frontend.concatenate_files as concatenate_files
-import New_Interface.Frontend.combine_files as combine_files
 import pandas as pd
 
 file_path = []
@@ -125,6 +121,7 @@ class UserDashboard:
     def click_concatenate_file(self):
         if self.get_selection() != []:
             win = Toplevel()
+            from New_Interface.Frontend import concatenate_files
             concatenate_files.ConcatenateFiles(win, self.get_selection())
             self.window.withdraw()
             win.deiconify()
@@ -133,8 +130,8 @@ class UserDashboard:
 
 
     def click_combine_file(self):
-        win = Toplevel()
-        combine_files.CombineFiles(win,self.get_selection())
+        from New_Interface.Frontend import combine_files
+        combine_files.CombineFiles(self.get_selection())
 
 
 

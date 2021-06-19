@@ -1,11 +1,12 @@
 from tkinter import messagebox
 import numpy as np
 from tqdm import tk
-from New_Interface.Frontend.user_dashboard import UserDashboard
+
+from New_Interface.Frontend.concatenate_files import ConcatenateFiles
 
 
-class CombineFiles(UserDashboard):
-    def __init__(self, dashboard_selection):
+class CombineFiles(ConcatenateFiles):
+    def __init__(self,dashboard_selection):
         self.listbox_object = dashboard_selection
         self.files = self.read_selected_files()
         for i, dataset in enumerate(self.files):
@@ -28,3 +29,4 @@ def win():
 
 if __name__ == '__main__':
     win()
+
