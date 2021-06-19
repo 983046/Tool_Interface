@@ -134,7 +134,7 @@ class UserDashboard:
 
     def click_combine_file(self):
         win = Toplevel()
-        combine_files.CombineFiles(self.get_selection())
+        combine_files.CombineFiles(win,self.get_selection())
 
 
 

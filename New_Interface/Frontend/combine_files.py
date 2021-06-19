@@ -3,6 +3,7 @@ import numpy as np
 from tqdm import tk
 from New_Interface.Frontend.user_dashboard import UserDashboard
 
+
 class CombineFiles(UserDashboard):
     def __init__(self, dashboard_selection):
         self.listbox_object = dashboard_selection
@@ -16,12 +17,14 @@ class CombineFiles(UserDashboard):
 
     # todo Need to do something with the data, (i.e. save)
 
+
 def win():
     window = tk.ThemedTk()
     window.get_themes()
     window.set_theme("arc")
     CombineFiles(window)
     window.mainloop()
+
 
 if __name__ == '__main__':
     win()
