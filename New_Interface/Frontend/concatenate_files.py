@@ -14,9 +14,7 @@ from New_Interface.Frontend.user_dashboard import UserDashboard
 class ConcatenateFiles(UserDashboard):
     def __init__(self, window, dashboard_selection):
         self.window = window
-        self.window.geometry("1366x720+0+0")
         self.window.title("Concatenate Data Dashboard")
-        self.window.resizable(False, False)
         self.admin_dashboard_frame = ImageTk.PhotoImage \
             (file='images\\user_frame.png')
         self.image_panel = Label(self.window, image=self.admin_dashboard_frame)
@@ -64,8 +62,10 @@ class ConcatenateFiles(UserDashboard):
                                                    font=("yu gothic ui", 13, "bold"), relief=FLAT,
                                                    activebackground="white"
                                                    , borderwidth=0, background="white", cursor="hand2",
-                                                   command=self.click_concatenate_files)
+                                                   command=self.click_concatenate_files())
         self.concatenate_files_button_red.place(x=1000, y=325)
+
+
 
     def set_frame(self):
         add_frame = Frame(self.window)
@@ -99,8 +99,7 @@ class ConcatenateFiles(UserDashboard):
             else:
                 merged_dataset = pd.merge(merged_dataset,
                                           dataset, on=one_element)
-        messagebox.showinfo("Merged Data", "Data was merged on: \n {}".format(one_element))
-
+                messagebox.showinfo("Merged Data", "Data was merged on: \n {}".format(one_element))
         # todo Need to do something with the data, (i.e. save)
 
 

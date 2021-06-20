@@ -9,6 +9,7 @@ from tkinter import ttk, messagebox
 from PIL import ImageTk
 import pandas as pd
 
+
 file_path = []
 
 
@@ -52,6 +53,27 @@ class UserDashboard:
         self.add_button.place(x=622, y=542)
         self.click_add()
 
+
+
+
+    def click_next_file(self):
+        self.next_feature = ImageTk.PhotoImage \
+            (file='images\\feature_button_red.png')
+        self.next_feature_button_red = Button(self.window, image=self.next_feature,
+                                                  font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                                  activebackground="white"
+                                                  , borderwidth=0, background="white", cursor="hand2",
+                                                  command=self.run_feature_frame())
+        self.next_feature_button_red.place(x=475, y=582)
+
+    def run_feature_frame(self):
+        win = Toplevel()
+        from New_Interface.Frontend import feature_dashboard
+        feature_dashboard.FeatureDashboard(win)
+        self.window.withdraw()
+        win.deiconify()
+
+
     def click_add(self):
         add_frame = Frame(self.window)
         add_frame.place(x=46, y=115)
@@ -86,9 +108,6 @@ class UserDashboard:
         # self.yscroll = Scrollbar(command=self.lb.yview, orient=VERTICAL)
         # self.yscroll.place(x=900, y=160)
 
-        # for files in self.file_values:
-        #     self.lb.insert(END, files)
-
         self.remove_file = ImageTk.PhotoImage \
             (file='images\\remove_file_button_red.png')
         self.remove_file_button_red = Button(self.window, image=self.remove_file,
@@ -96,6 +115,7 @@ class UserDashboard:
                                              , borderwidth=0, background="white", cursor="hand2",
                                              command=self.click_remove_file)
         self.remove_file_button_red.place(x=200, y=325)
+
 
         self.combine_file = ImageTk.PhotoImage \
             (file='images\\combine_file_button_red.png')
@@ -105,20 +125,26 @@ class UserDashboard:
                                               command=self.click_combine_file)
         self.combine_file_button_red.place(x=1000, y=225)
 
-        self.concatenate_file = ImageTk.PhotoImage \
+        self.concatenate_file_user = ImageTk.PhotoImage \
             (file='images\\concatenate_file_button_red.png')
-        self.concatenate_file_button_red = Button(self.window, image=self.concatenate_file,
-                                                  font=("yu gothic ui", 13, "bold"), relief=FLAT,
-                                                  activebackground="white"
-                                                  , borderwidth=0, background="white", cursor="hand2",
-                                                  command=self.click_concatenate_file)
-        self.concatenate_file_button_red.place(x=1000, y=325)
-
-    # def insert_to_added_list(self,file):
-    #     self.lb.insert(END, file)
+        self.concatenate_file_user_button_red = Button(self.window, image=self.concatenate_file_user,
+                                           font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                           activebackground="white"
+                                           , borderwidth=0, background="white", cursor="hand2",
+                                           command=self.click_concatenate_file_user)
+        self.concatenate_file_user_button_red.place(x=1000, y=325)
 
 
-    def click_concatenate_file(self):
+        self.next_file = ImageTk.PhotoImage \
+            (file='images\\next_button_red.png')
+        self.next_file_button_red = Button(self.window, image=self.next_file,
+                                           font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                           activebackground="white"
+                                           , borderwidth=0, background="white", cursor="hand2",
+                                           command=self.click_next_file)
+        self.next_file_button_red.place(x=1000, y=425)
+
+    def click_concatenate_file_user(self):
         if self.get_selection() != []:
             win = Toplevel()
             from New_Interface.Frontend import concatenate_files
@@ -130,8 +156,9 @@ class UserDashboard:
 
 
     def click_combine_file(self):
-        from New_Interface.Frontend import combine_files
-        combine_files.CombineFiles(self.get_selection())
+        if self.get_selection() != []:
+            from New_Interface.Frontend import combine_files
+            combine_files.CombineFiles(self.get_selection())
 
 
 
