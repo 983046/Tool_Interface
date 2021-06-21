@@ -53,9 +53,6 @@ class UserDashboard:
         self.add_button.place(x=622, y=542)
         self.click_add()
 
-
-
-
     def click_next_file(self):
         self.next_feature = ImageTk.PhotoImage \
             (file='images\\feature_button_red.png')
@@ -76,7 +73,7 @@ class UserDashboard:
 
     def click_add(self):
         add_frame = Frame(self.window)
-        add_frame.place(x=46, y=115)
+        add_frame.place(x=48, y=116)
 
         self.add_dashboard_frame = ImageTk.PhotoImage \
             (file='images\\add_frame.png')
@@ -148,6 +145,7 @@ class UserDashboard:
         if self.get_selection() != []:
             win = Toplevel()
             from New_Interface.Frontend import concatenate_files
+            #todo Buttton not works.
             concatenate_files.ConcatenateFiles(win, self.get_selection())
             self.window.withdraw()
             win.deiconify()

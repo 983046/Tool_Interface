@@ -4,7 +4,7 @@ from tqdm import tk
 
 from New_Interface.Frontend.concatenate_files import ConcatenateFiles
 
-
+#todo Make combine_files with concatenate_files, make it automatic.
 class CombineFiles(ConcatenateFiles):
     def __init__(self,dashboard_selection):
         self.listbox_object = dashboard_selection

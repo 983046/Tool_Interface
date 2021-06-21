@@ -36,7 +36,7 @@ class FeatureDashboard(UserDashboard):
 
     def set_frame(self):
         add_frame = Frame(self.window)
-        add_frame.place(x=46, y=115)
+        add_frame.place(x=48, y=116)
 
         self.add = ImageTk.PhotoImage \
             (file='images\\add_button_red.png')
@@ -53,6 +53,11 @@ class FeatureDashboard(UserDashboard):
                                               , borderwidth=0, background="white", cursor="hand2",
                                               command=self.click_next_file)
         self.next_feature_button_blue.place(x=477, y=583)
+
+        self.feature_dashboard_frame = ImageTk.PhotoImage \
+            (file='images\\feature_frame.png')
+        self.feature_panel = Label(add_frame, image=self.feature_dashboard_frame, bg="white")
+        self.feature_panel.pack(fill='both', expand='yes')
 
     def click_add(self):
         add_frame = Frame(self.window)

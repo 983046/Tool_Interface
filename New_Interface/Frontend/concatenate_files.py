@@ -43,6 +43,8 @@ class ConcatenateFiles(UserDashboard):
 
         self.set_frame()
 
+
+
         self.lb_selection = Listbox(self.window, width=50, height=3)
         self.lb_selection.place(x=150, y=250)
         self.listbox_object = dashboard_selection
@@ -69,7 +71,7 @@ class ConcatenateFiles(UserDashboard):
 
     def set_frame(self):
         add_frame = Frame(self.window)
-        add_frame.place(x=46, y=115)
+        add_frame.place(x=48, y=116)
 
         self.add_dashboard_frame = ImageTk.PhotoImage \
             (file='images\\concatenate_frame.png')
@@ -83,24 +85,25 @@ class ConcatenateFiles(UserDashboard):
                                  , borderwidth=0, background="white", cursor="hand2", command=self.click_add)
         self.add_button.place(x=622, y=542)
 
+
+
     def click_concatenate_files(self):
         selected = self.lb_common.curselection()
         selected_files = self.extract_common_features()
         one_element = ''
         for index in selected[::-1]:
             one_element = selected_files[index]
-
-        print(one_element)
-        files = self.read_selected_files()
-        merged_dataset = pd
-        for i, dataset in enumerate(files):
-            if i == 0:
-                merged_dataset = dataset
-            else:
-                merged_dataset = pd.merge(merged_dataset,
-                                          dataset, on=one_element)
-                messagebox.showinfo("Merged Data", "Data was merged on: \n {}".format(one_element))
-        # todo Need to do something with the data, (i.e. save)
+        if one_element != '':
+            files = self.read_selected_files()
+            merged_dataset = pd
+            for i, dataset in enumerate(files):
+                if i == 0:
+                    merged_dataset = dataset
+                else:
+                    merged_dataset = pd.merge(merged_dataset,
+                                              dataset, on=one_element)
+                    messagebox.showinfo("Merged Data", "Data was merged on: \n {}".format(one_element))
+            # todo Need to do something with the data, (i.e. save)
 
 
     def extract_common_features(self):
