@@ -33,6 +33,62 @@ class FeatureDashboard(UserDashboard):
         self.time_running()
         self.set_frame()
 
+        # =======================================================================
+        # ========================Starting Tree View=============================
+        # =======================================================================
+        self.tree_view_frame = Frame(self.window, bg="white")
+        self.tree_view_frame.place(x=388, y=180, height=250, width=600)
+
+        style = ttk.Style()
+        style.configure("Treeview.Heading", font=('yu gothic ui', 10, "bold"), foreground="red")
+        style.configure("Treeview", font=('yu gothic ui', 9, "bold"), foreground="#f29844")
+
+        scroll_x = Scrollbar(self.tree_view_frame, orient=HORIZONTAL)
+        scroll_y = Scrollbar(self.tree_view_frame, orient=VERTICAL)
+        self.student_tree = ttk.Treeview(self.tree_view_frame,
+                                         columns=(
+                                             "STUDENT ID", "FNAME", "LNAME", "EMAIL", "DOB", "GENDER", "ADDRESS",
+                                             "CONTACT NO", "SHIFT", "COURSE ENROLLED", "BATCH", "SECTION",
+                                             "REGISTRATION DATE"),
+                                         xscrollcommand=scroll_x.set, yscrollcommand=scroll_y.set)
+        scroll_x.pack(side=BOTTOM, fill=X)
+        scroll_y.pack(side=RIGHT, fill=Y)
+        scroll_x.config(command=self.student_tree.xview)
+        scroll_y.config(command=self.student_tree.yview)
+
+        # ==========================TreeView Heading====================
+        self.student_tree.heading("STUDENT ID", text="STUDENT ID")
+        self.student_tree.heading("FNAME", text="FNAME")
+        self.student_tree.heading("LNAME", text="LNAME")
+        self.student_tree.heading("EMAIL", text="EMAIL")
+        self.student_tree.heading("DOB", text="DOB")
+        self.student_tree.heading("GENDER", text="GENDER")
+        self.student_tree.heading("ADDRESS", text="ADDRESS")
+        self.student_tree.heading("CONTACT NO", text="CONTACT NO")
+        self.student_tree.heading("SHIFT", text="SHIFT")
+        self.student_tree.heading("COURSE ENROLLED", text="COURSE ENROLLED")
+        self.student_tree.heading("BATCH", text="BATCH")
+        self.student_tree.heading("SECTION", text="SECTION")
+        self.student_tree.heading("REGISTRATION DATE", text="REGISTRATION DATE")
+        self.student_tree["show"] = "headings"
+
+        # ==========================TreeView Column====================
+        self.student_tree.column("STUDENT ID", width=150)
+        self.student_tree.column("FNAME", width=170)
+        self.student_tree.column("LNAME", width=170)
+        self.student_tree.column("EMAIL", width=200)
+        self.student_tree.column("ADDRESS", width=150)
+        self.student_tree.column("GENDER", width=150)
+        self.student_tree.column("CONTACT NO", width=150)
+        self.student_tree.column("DOB", width=150)
+        self.student_tree.column("SHIFT", width=150)
+        self.student_tree.column("COURSE ENROLLED", width=150)
+        self.student_tree.column("BATCH", width=100)
+        self.student_tree.column("SECTION", width=100)
+        self.student_tree.column("REGISTRATION DATE", width=150)
+        self.student_tree.pack(fill=BOTH, expand=1)
+
+
 
     def set_frame(self):
         add_frame = Frame(self.window)
@@ -58,6 +114,9 @@ class FeatureDashboard(UserDashboard):
             (file='images\\feature_frame.png')
         self.feature_panel = Label(add_frame, image=self.feature_dashboard_frame, bg="white")
         self.feature_panel.pack(fill='both', expand='yes')
+
+
+
 
     def click_add(self):
         add_frame = Frame(self.window)

@@ -103,8 +103,18 @@ class ConcatenateFiles(UserDashboard):
                     merged_dataset = pd.merge(merged_dataset,
                                               dataset, on=one_element)
                     messagebox.showinfo("Merged Data", "Data was merged on: \n {}".format(one_element))
+
+
+
             # todo Need to do something with the data, (i.e. save)
 
+    def get_file_name(self):
+        files = self.read_selected_files()
+        read_file = []
+        for file in files:
+            read_file.append(file)
+
+        return read_file
 
     def extract_common_features(self):
         files = self.read_selected_files()
