@@ -9,10 +9,9 @@ from tkinter import ttk, messagebox
 from PIL import ImageTk
 import pandas as pd
 
+#todo Validation for buttons and saving single file
 
 file_path = []
-
-
 class UserDashboard:
     def __init__(self, window):
         self.window = window
@@ -113,36 +112,35 @@ class UserDashboard:
                                              command=self.click_remove_file)
         self.remove_file_button_red.place(x=200, y=325)
 
-
         self.combine_file = ImageTk.PhotoImage \
-            (file='images\\combine_file_button_red.png')
+            (file='images\\combine_file_button_grey.png')
         self.combine_file_button_red = Button(self.window, image=self.combine_file,
-                                              font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
-                                              , borderwidth=0, background="white", cursor="hand2",
-                                              command=self.click_combine_file)
+                                              font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                              activebackground="white"
+                                              , borderwidth=0, background="white", cursor="hand2")
         self.combine_file_button_red.place(x=1000, y=225)
 
         self.concatenate_file_user = ImageTk.PhotoImage \
-            (file='images\\concatenate_file_button_red.png')
+            (file='images\\concatenate_file_button_grey.png')
         self.concatenate_file_user_button_red = Button(self.window, image=self.concatenate_file_user,
-                                           font=("yu gothic ui", 13, "bold"), relief=FLAT,
-                                           activebackground="white"
-                                           , borderwidth=0, background="white", cursor="hand2",
-                                           command=self.click_concatenate_file_user)
+                                                       font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                                       activebackground="white"
+                                                       , borderwidth=0, background="white", cursor="hand2")
         self.concatenate_file_user_button_red.place(x=1000, y=325)
 
-
         self.next_file = ImageTk.PhotoImage \
-            (file='images\\next_button_red.png')
+            (file='images\\next_button_grey.png')
         self.next_file_button_red = Button(self.window, image=self.next_file,
                                            font=("yu gothic ui", 13, "bold"), relief=FLAT,
                                            activebackground="white"
-                                           , borderwidth=0, background="white", cursor="hand2",
-                                           command=self.click_next_file)
+                                           , borderwidth=0, background="white", cursor="hand2")
         self.next_file_button_red.place(x=1000, y=425)
 
+
+
+
     def click_concatenate_file_user(self):
-        if self.get_selection() != []:
+        if len(self.get_selection()) >= 2:
             win = Toplevel()
             from New_Interface.Frontend import concatenate_files
             #todo Buttton not works.
@@ -150,15 +148,15 @@ class UserDashboard:
             self.window.withdraw()
             win.deiconify()
         else:
-            messagebox.showinfo("No file selected", "No file was selected")
+            messagebox.showinfo("File selection", "Two or more files need to be selected")
 
 
     def click_combine_file(self):
-        if self.get_selection() != []:
+        if len(self.get_selection()) >= 2:
             from New_Interface.Frontend import combine_files
             combine_files.CombineFiles(self.get_selection())
-
-
+        else:
+            messagebox.showinfo("File selection", "Two or more files need to be selected")
 
     def get_selection(self):
         value = []
@@ -225,6 +223,38 @@ class UserDashboard:
         # else:
         #     self.window.deiconify()
         #     messagebox.showinfo("Selected File", "No File was selected")
+
+        self.red_buttons()
+
+
+    def red_buttons(self):
+        if (self.lb.size() >= 1):
+            self.next_file = ImageTk.PhotoImage \
+                (file='images\\next_button_red.png')
+            self.next_file_button_red = Button(self.window, image=self.next_file,
+                                               font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                               activebackground="white"
+                                               , borderwidth=0, background="white", cursor="hand2",
+                                               command=self.click_next_file)
+            self.next_file_button_red.place(x=1000, y=425)
+        if (self.lb.size() >= 2):
+            self.combine_file = ImageTk.PhotoImage \
+                (file='images\\combine_file_button_red.png')
+            self.combine_file_button_red = Button(self.window, image=self.combine_file,
+                                                  font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                                  activebackground="white"
+                                                  , borderwidth=0, background="white", cursor="hand2",
+                                                  command=self.click_combine_file)
+            self.combine_file_button_red.place(x=1000, y=225)
+
+            self.concatenate_file_user = ImageTk.PhotoImage \
+                (file='images\\concatenate_file_button_red.png')
+            self.concatenate_file_user_button_red = Button(self.window, image=self.concatenate_file_user,
+                                                           font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                                           activebackground="white"
+                                                           , borderwidth=0, background="white", cursor="hand2",
+                                                           command=self.click_concatenate_file_user)
+            self.concatenate_file_user_button_red.place(x=1000, y=325)
 
     def read_folder(self, url):
         values = []

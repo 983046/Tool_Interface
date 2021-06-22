@@ -1,17 +1,19 @@
 import os
 import pickle
+import tkinter
 
 from tkinter import *
 import numpy as np
 
 from ttkthemes import themed_tk as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, simpledialog
 from PIL import ImageTk
 import pandas as pd
 
 from New_Interface.Frontend.user_dashboard import UserDashboard
 
-SAVED_FILE_URL = r'New_Interface/Frontend/joined_files'
+#todo Solve: File location
+SAVED_FILE_URL = r'C:\Users\marci\OneDrive\Other\Desktop\Shared\Tool_Interface\New_Interface\Frontend\joined_files'
 
 
 class ConcatenateFiles(UserDashboard):
@@ -66,7 +68,8 @@ class ConcatenateFiles(UserDashboard):
                                                    activebackground="white"
                                                    , borderwidth=0, background="white", cursor="hand2",
                                                    command=self.click_concatenate_files)
-        self.concatenate_files_button_red.place(x=1000, y=325)
+        self.concatenate_files_button_red.place(x=1000, y=400)
+
 
     def set_frame(self):
         add_frame = Frame(self.window)
@@ -101,16 +104,17 @@ class ConcatenateFiles(UserDashboard):
             else:
                 merged_dataset = pd.merge(merged_dataset,
                                             dataset, on=one_element)
-                messagebox.showinfo("Merged Data", "Data was merged on: \n {}".format(one_element))
+                # messagebox.showinfo("Merged Data", "Data was merged on: \n {}".format(one_element))
 
-                file_name = ''
-                for file in self.get_file_name():
-                    file_name += '{}'.format(file)
-
-                file_url = SAVED_FILE_URL + '\\' + file_name + '.csv'
-
-
-                merged_dataset.to_csv(file_url)
+                user_input = simpledialog.askstring(title="File Name",
+                                                  prompt="Enter name for the file.:", parent=self.window)
+                if type(user_input) == str and user_input != '':
+                    file_url = SAVED_FILE_URL + '\\' + user_input + '.csv'
+                    df = pd.DataFrame(merged_dataset, columns=merged_dataset.columns)
+                    df.to_csv(file_url)
+                    messagebox.showinfo("File name", "File saved as: \n {}".format(user_input))
+                else:
+                    messagebox.showinfo("File name", "The file name is empty or need to be a word: \n {}".format(user_input))
 
             # todo Need to do something with the data, (i.e. save)
 
