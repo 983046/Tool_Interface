@@ -1,4 +1,5 @@
 import os
+import pickle
 
 from tkinter import *
 import numpy as np
@@ -9,6 +10,8 @@ from PIL import ImageTk
 import pandas as pd
 
 from New_Interface.Frontend.user_dashboard import UserDashboard
+
+SAVED_FILE_URL = r'New_Interface/Frontend/joined_files'
 
 
 class ConcatenateFiles(UserDashboard):
@@ -43,8 +46,6 @@ class ConcatenateFiles(UserDashboard):
 
         self.set_frame()
 
-
-
         self.lb_selection = Listbox(self.window, width=50, height=3)
         self.lb_selection.place(x=150, y=250)
         self.listbox_object = dashboard_selection
@@ -64,10 +65,8 @@ class ConcatenateFiles(UserDashboard):
                                                    font=("yu gothic ui", 13, "bold"), relief=FLAT,
                                                    activebackground="white"
                                                    , borderwidth=0, background="white", cursor="hand2",
-                                                   command=self.click_concatenate_files())
+                                                   command=self.click_concatenate_files)
         self.concatenate_files_button_red.place(x=1000, y=325)
-
-
 
     def set_frame(self):
         add_frame = Frame(self.window)
@@ -85,26 +84,33 @@ class ConcatenateFiles(UserDashboard):
                                  , borderwidth=0, background="white", cursor="hand2", command=self.click_add)
         self.add_button.place(x=622, y=542)
 
-
-
     def click_concatenate_files(self):
         selected = self.lb_common.curselection()
         selected_files = self.extract_common_features()
         one_element = ''
         for index in selected[::-1]:
             one_element = selected_files[index]
-        if one_element != '':
-            files = self.read_selected_files()
-            merged_dataset = pd
-            for i, dataset in enumerate(files):
-                if i == 0:
-                    merged_dataset = dataset
-                else:
-                    merged_dataset = pd.merge(merged_dataset,
-                                              dataset, on=one_element)
-                    messagebox.showinfo("Merged Data", "Data was merged on: \n {}".format(one_element))
+
+        print(one_element)
+
+        files = self.read_selected_files()
+        merged_dataset = pd
+        for i, dataset in enumerate(files):
+            if i == 0:
+                merged_dataset = dataset
+            else:
+                merged_dataset = pd.merge(merged_dataset,
+                                            dataset, on=one_element)
+                messagebox.showinfo("Merged Data", "Data was merged on: \n {}".format(one_element))
+
+                file_name = ''
+                for file in self.get_file_name():
+                    file_name += '{}'.format(file)
+
+                file_url = SAVED_FILE_URL + '\\' + file_name + '.csv'
 
 
+                merged_dataset.to_csv(file_url)
 
             # todo Need to do something with the data, (i.e. save)
 
