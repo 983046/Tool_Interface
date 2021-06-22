@@ -26,6 +26,7 @@ class CombineFiles(ConcatenateFiles):
                     file_url = SAVED_FILE_URL + '\\' + user_input + '.csv'
                     df = pd.DataFrame(merged_dataset, columns=merged_dataset.columns)
                     df.to_csv(file_url)
+                    self.combine_concatenate_pressed = True
                     messagebox.showinfo("File name", "File saved as: \n {}".format(user_input))
                 else:
                     messagebox.showinfo("File name", "The file name is empty or need to be a word: \n {}".format(user_input))

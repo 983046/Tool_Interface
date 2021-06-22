@@ -12,8 +12,10 @@ import pandas as pd
 #todo Validation for buttons and saving single file
 
 file_path = []
+
 class UserDashboard:
     def __init__(self, window):
+        self.combine_concatenate_pressed = False
         self.window = window
         self.window.geometry("1366x720+0+0")
         self.window.title("Dashboard")
@@ -112,31 +114,58 @@ class UserDashboard:
                                              command=self.click_remove_file)
         self.remove_file_button_red.place(x=200, y=325)
 
-        self.combine_file = ImageTk.PhotoImage \
-            (file='images\\combine_file_button_grey.png')
-        self.combine_file_button_red = Button(self.window, image=self.combine_file,
-                                              font=("yu gothic ui", 13, "bold"), relief=FLAT,
-                                              activebackground="white"
-                                              , borderwidth=0, background="white", cursor="hand2")
-        self.combine_file_button_red.place(x=1000, y=225)
 
-        self.concatenate_file_user = ImageTk.PhotoImage \
-            (file='images\\concatenate_file_button_grey.png')
-        self.concatenate_file_user_button_red = Button(self.window, image=self.concatenate_file_user,
-                                                       font=("yu gothic ui", 13, "bold"), relief=FLAT,
-                                                       activebackground="white"
-                                                       , borderwidth=0, background="white", cursor="hand2")
-        self.concatenate_file_user_button_red.place(x=1000, y=325)
+        if self.combine_concatenate_pressed == False:
+            self.combine_file = ImageTk.PhotoImage \
+                (file='images\\combine_file_button_grey.png')
+            self.combine_file_button_red = Button(self.window, image=self.combine_file,
+                                                  font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                                  activebackground="white"
+                                                  , borderwidth=0, background="white", cursor="hand2")
+            self.combine_file_button_red.place(x=1000, y=225)
 
-        self.next_file = ImageTk.PhotoImage \
-            (file='images\\next_button_grey.png')
-        self.next_file_button_red = Button(self.window, image=self.next_file,
-                                           font=("yu gothic ui", 13, "bold"), relief=FLAT,
-                                           activebackground="white"
-                                           , borderwidth=0, background="white", cursor="hand2")
-        self.next_file_button_red.place(x=1000, y=425)
+            self.concatenate_file_user = ImageTk.PhotoImage \
+                (file='images\\concatenate_file_button_grey.png')
+            self.concatenate_file_user_button_red = Button(self.window, image=self.concatenate_file_user,
+                                                           font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                                           activebackground="white"
+                                                           , borderwidth=0, background="white", cursor="hand2")
+            self.concatenate_file_user_button_red.place(x=1000, y=325)
 
+            self.next_file = ImageTk.PhotoImage \
+                (file='images\\next_button_grey.png')
+            self.next_file_button_red = Button(self.window, image=self.next_file,
+                                               font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                               activebackground="white"
+                                               , borderwidth=0, background="white", cursor="hand2")
+            self.next_file_button_red.place(x=1000, y=425)
+        else:
+            self.next_file = ImageTk.PhotoImage \
+                (file='images\\next_button_red.png')
+            self.next_file_button_red = Button(self.window, image=self.next_file,
+                                               font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                               activebackground="white"
+                                               , borderwidth=0, background="white", cursor="hand2",
+                                               command=self.click_next_file)
+            self.next_file_button_red.place(x=1000, y=425)
 
+            self.combine_file = ImageTk.PhotoImage \
+                (file='images\\combine_file_button_red.png')
+            self.combine_file_button_red = Button(self.window, image=self.combine_file,
+                                                  font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                                  activebackground="white"
+                                                  , borderwidth=0, background="white", cursor="hand2",
+                                                  command=self.click_combine_file)
+            self.combine_file_button_red.place(x=1000, y=225)
+
+            self.concatenate_file_user = ImageTk.PhotoImage \
+                (file='images\\concatenate_file_button_red.png')
+            self.concatenate_file_user_button_red = Button(self.window, image=self.concatenate_file_user,
+                                                           font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                                           activebackground="white"
+                                                           , borderwidth=0, background="white", cursor="hand2",
+                                                           command=self.click_concatenate_file_user)
+            self.concatenate_file_user_button_red.place(x=1000, y=325)
 
 
     def click_concatenate_file_user(self):

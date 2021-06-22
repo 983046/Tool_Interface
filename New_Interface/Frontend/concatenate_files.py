@@ -113,6 +113,7 @@ class ConcatenateFiles(UserDashboard):
                     df = pd.DataFrame(merged_dataset, columns=merged_dataset.columns)
                     df.to_csv(file_url)
                     messagebox.showinfo("File name", "File saved as: \n {}".format(user_input))
+                    self.combine_concatenate_pressed = True
                 else:
                     messagebox.showinfo("File name", "The file name is empty or need to be a word: \n {}".format(user_input))
 
