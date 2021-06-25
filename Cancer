@@ -67,6 +67,33 @@ def save_training(model,info):
     #model = joblib.load(info+"/model.joblib")
 #==================================================================================
 #==================================================================================
+def chnageDs(dataset,listType):
+    '''
+    change columntype to what use want
+    @datset: input dataset
+    @listType : type of each filed (int,float,bool,cat,drop)
+    return modified dataset
+    example of use:
+        ds = pd.read_csv(Jam1)
+        arrType =['float','int','int','int','int','int','int','int','int','int','int','int','int','int','int','int','int','int','int','int','int','int','int','int','int','int','drop','drop','drop','bool','int','cat']
+        ds = chnageDs(ds,arrType)
+    '''
+
+    droped = 0
+    for i in range(len(dataset.columns)):
+            col = dataset.columns[i-droped]
+            #print(i,col,listType[i],droped)
+            
+            if listType[i] == 'cat':
+                    dataset[col] = pd.factorize(dataset[col])[0]
+            elif listType[i] == 'drop':
+                  #print('drop')    
+                  dataset = dataset.drop([col], axis=1)
+                  #print(len(dataset.columns))
+                  droped = droped + 1
+            else:
+                  dataset[col] = dataset[col].astype(listType[i])
+    return dataset
 
 def read_Combine_Data(listOfFiles,commonField='SEQN'):
     '''
