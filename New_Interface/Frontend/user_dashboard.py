@@ -220,10 +220,10 @@ class UserDashboard:
             if file.endswith('.XPT'):
                 file = pd.read_sas(file)
                 files.append(file)
-            elif file.endswith('.CSV'):
-                file = pd.read_sas(file)
+            elif file.endswith('.csv'):
+                file = pd.read_csv(file)
                 files.append(file)
-            elif file.endswith('.XLSX'):
+            elif file.endswith('.xlsx'):
                 file = pd.read_excel(file, index_col=0)
                 files.append(file)
             else:
@@ -293,6 +293,18 @@ class UserDashboard:
                 values.append(fileName)
 
         return values
+
+    def read_single_file(self, file):
+        if file.endswith('.XPT'):
+            file = pd.read_sas(file)
+            return file
+        elif file.endswith('.csv'):
+            file = pd.read_csv(file)
+            return file
+        elif file.endswith('.xlsx'):
+            file = pd.read_excel(file, index_col=0)
+            return file
+
 
     def click_exit(self):
         self.window.deiconify()

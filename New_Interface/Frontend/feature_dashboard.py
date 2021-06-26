@@ -8,10 +8,15 @@ from ttkthemes import themed_tk as tk
 from tkinter import ttk, messagebox
 from PIL import ImageTk
 import pandas as pd
+from pandastable import Table, TableModel
+import numpy as np
+
 from New_Interface.Frontend.user_dashboard import UserDashboard
+FOLDER_URL = r'C:\Users\marci\OneDrive\Other\Desktop\Shared\Tool_Interface\New_Interface\Frontend\joined_files'
 
 class FeatureDashboard(UserDashboard):
     def __init__(self, window):
+        global chosen_file
         self.window = window
         self.window.title("Concatenate Data Dashboard")
         self.admin_dashboard_frame = ImageTk.PhotoImage \
@@ -31,55 +36,32 @@ class FeatureDashboard(UserDashboard):
         self.date_time = Label(self.window)
         self.date_time.place(x=80, y=45)
         self.time_running()
+
         self.set_frame()
 
-        # =======================================================================
-        # ========================Starting Tree View=============================
-        # =======================================================================
-        self.tree_view_frame = Frame(self.window, bg="white")
-        self.tree_view_frame.place(x=388, y=180, height=150, width=600)
 
-        style = ttk.Style()
-        style.configure("Treeview.Heading", font=('yu gothic ui', 10, "bold"), foreground="red")
-        style.configure("Treeview", font=('yu gothic ui', 9, "bold"), foreground="#f29844")
 
-        scroll_x = Scrollbar(self.tree_view_frame, orient=HORIZONTAL)
-        scroll_y = Scrollbar(self.tree_view_frame, orient=VERTICAL)
-        self.data_tree = ttk.Treeview(self.tree_view_frame,
-                                      columns=(
-                                             "STUDENT ID", "FNAME", "LNAME", "EMAIL", "DOB", "GENDER", "ADDRESS",
-                                             "CONTACT NO", "SHIFT", "COURSE ENROLLED", "BATCH", "SECTION",
-                                             "REGISTRATION DATE"),
-                                      xscrollcommand=scroll_x.set, yscrollcommand=scroll_y.set)
-        scroll_x.pack(side=BOTTOM, fill=X)
-        scroll_y.pack(side=RIGHT, fill=Y)
-        scroll_x.config(command=self.data_tree.xview)
-        scroll_y.config(command=self.data_tree.yview)
+    def apply_pressed(self):
+        choice = self.chosen_na_value.get()
+        file_name = self.chosen_file.get()
+        file_url = FOLDER_URL + '\\' + file_name
 
-        # ==========================TreeView Heading====================
-        self.data_tree.heading("STUDENT ID", text="STUDENT ID")
+        read_file = self.read_single_file(file_url)
+        df = pd.DataFrame(read_file, columns=read_file.columns)
 
-        self.data_tree["show"] = "headings"
+        if choice == 'mean':
+            read_file.fillna(read_file.mean())
+            df.to_csv(file_url)
+        elif choice == 'zero':
+            read_file.fillna(0)
+            df.to_csv(file_url)
+        elif choice == 'one':
+            read_file.fillna(1)
+            df.to_csv(file_url)
+        elif choice == 'em':
+            None
 
-        # ==========================TreeView Column====================
-        self.data_tree.column("STUDENT ID", width=150)
-        self.data_tree.pack(fill=BOTH, expand=1)
-        self.data_tree.insert(parent='', index=0, values=('1', 'Vineet', 'Alpha'))
-        self.data_tree.insert(parent='', index=1, values=('1', 'Vineet', 'Alpha'))
-        self.data_tree.insert(parent='', index=2, values=('1', 'Vineet', 'Alpha'))
 
-        # ==========================Name Column====================
-        inFileLbl = Label(self.window, text='Min')
-        inFileLbl.config(font=('yu gothic ui', 8, "bold"))
-        inFileLbl.place(x=348, y=212)
-
-        inFileLbl = Label(self.window, text='Max')
-        inFileLbl.config(font=('yu gothic ui', 8, "bold"))
-        inFileLbl.place(x=348, y=232)
-
-        inFileLbl = Label(self.window, text='Std')
-        inFileLbl.config(font=('yu gothic ui', 8, "bold"))
-        inFileLbl.place(x=348, y=252)
 
 
     def set_frame(self):
@@ -108,7 +90,47 @@ class FeatureDashboard(UserDashboard):
         self.feature_panel.pack(fill='both', expand='yes')
 
 
+        self.files = self.read_folder(FOLDER_URL)
+        if len(self.files) != 0:
+            self.chosen_file = StringVar(self.window)
+            comboLab = OptionMenu(self.window, self.chosen_file,
+                                          *self.files)
+            comboLab.place(x=100, y=200)
 
+        self.na_values = ['mean', 'zero', 'one', 'em']
+        if len(self.na_values) != 0:
+            self.chosen_na_value = StringVar(self.window)
+            comboLab = OptionMenu(self.window, self.chosen_na_value,
+                                          *self.na_values)
+            comboLab.place(x=400, y=200)
+
+
+        self.apply = ImageTk.PhotoImage \
+            (file='images\\apply_button_red.png')
+        self.apply_button = Button(self.window, image=self.apply,
+                                        font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
+                                        , borderwidth=0, background="white", cursor="hand2", command=self.apply_pressed)
+        self.apply_button.place(x=500, y=200)
+
+        self.display_dataframe_image = ImageTk.PhotoImage \
+            (file='images\\edit_table_button_red.png')
+        self.display_dataframe_button = Button(self.window, image=self.display_dataframe_image,
+                                        font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
+                                        , borderwidth=0, background="white", cursor="hand2", command=self.display_dataframe)
+        self.display_dataframe_button.place(x=700, y=200)
+
+
+
+    def display_dataframe(self):
+        file_name = self.chosen_file.get()
+        file_url = FOLDER_URL + '\\' + file_name
+
+        self.win = Toplevel()
+        f = Frame(self.win)
+        f.pack(fill=BOTH, expand=1)
+        self.table = pt = Table(f,showtoolbar=True, showstatusbar=True)
+        self.table.importCSV(file_url)
+        pt.show()
 
     def click_add(self):
         add_frame = Frame(self.window)

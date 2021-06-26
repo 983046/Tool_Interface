@@ -24,6 +24,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\New_Interface\Frontend\joined_files\bob.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\New_Interface\Frontend\user_dashboard.py">
           <value>
             <Attribute>
