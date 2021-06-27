@@ -16,7 +16,6 @@ FOLDER_URL = r'C:\Users\marci\OneDrive\Other\Desktop\Shared\Tool_Interface\New_I
 
 class FeatureDashboard(UserDashboard):
     def __init__(self, window):
-        global chosen_file
         self.window = window
         self.window.title("Concatenate Data Dashboard")
         self.admin_dashboard_frame = ImageTk.PhotoImage \
@@ -40,7 +39,6 @@ class FeatureDashboard(UserDashboard):
         self.set_frame()
 
 
-
     def apply_pressed(self):
         choice = self.chosen_na_value.get()
         file_name = self.chosen_file.get()
@@ -61,6 +59,21 @@ class FeatureDashboard(UserDashboard):
         elif choice == 'em':
             None
 
+
+        self.display_dataframe_image = ImageTk.PhotoImage \
+            (file='images\\edit_table_button_red.png')
+        self.display_dataframe_button = Button(self.window, image=self.display_dataframe_image,
+                                        font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
+                                        , borderwidth=0, background="white", cursor="hand2", command=self.display_dataframe)
+        self.display_dataframe_button.place(x=800, y=220)
+
+        self.model = ImageTk.PhotoImage \
+            (file='images\\model_button_red.png')
+        self.model_button_red = Button(self.window, image=self.model,
+                                       font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                       activebackground="white"
+                                       , borderwidth=0, background="white", cursor="hand2", command=self.run_model_frame)
+        self.model_button_red.place(x=796, y=583)
 
 
 
@@ -95,14 +108,14 @@ class FeatureDashboard(UserDashboard):
             self.chosen_file = StringVar(self.window)
             comboLab = OptionMenu(self.window, self.chosen_file,
                                           *self.files)
-            comboLab.place(x=100, y=200)
+            comboLab.place(x=120, y=250)
 
         self.na_values = ['mean', 'zero', 'one', 'em']
         if len(self.na_values) != 0:
             self.chosen_na_value = StringVar(self.window)
             comboLab = OptionMenu(self.window, self.chosen_na_value,
                                           *self.na_values)
-            comboLab.place(x=400, y=200)
+            comboLab.place(x=407, y=250)
 
 
         self.apply = ImageTk.PhotoImage \
@@ -110,15 +123,22 @@ class FeatureDashboard(UserDashboard):
         self.apply_button = Button(self.window, image=self.apply,
                                         font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
                                         , borderwidth=0, background="white", cursor="hand2", command=self.apply_pressed)
-        self.apply_button.place(x=500, y=200)
+        self.apply_button.place(x=600, y=220)
 
         self.display_dataframe_image = ImageTk.PhotoImage \
-            (file='images\\edit_table_button_red.png')
+            (file='images\\edit_table_button_grey.png')
         self.display_dataframe_button = Button(self.window, image=self.display_dataframe_image,
                                         font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
                                         , borderwidth=0, background="white", cursor="hand2", command=self.display_dataframe)
-        self.display_dataframe_button.place(x=700, y=200)
+        self.display_dataframe_button.place(x=800, y=220)
 
+
+    def run_model_frame(self):
+        win = Toplevel()
+        from New_Interface.Frontend import model_dashboard
+        model_dashboard.ModelDashboard(win)
+        self.window.withdraw()
+        win.deiconify()
 
 
     def display_dataframe(self):
@@ -131,6 +151,7 @@ class FeatureDashboard(UserDashboard):
         self.table = pt = Table(f,showtoolbar=True, showstatusbar=True)
         self.table.importCSV(file_url)
         pt.show()
+
 
     def click_add(self):
         add_frame = Frame(self.window)
@@ -210,6 +231,14 @@ class FeatureDashboard(UserDashboard):
                                                , borderwidth=0, background="white", cursor="hand2",
                                                command=self.click_next_file)
         self.next_feature_button_red.place(x=477, y=583)
+
+        self.model = ImageTk.PhotoImage \
+            (file='images\\model_button_blue.png')
+        self.model_button_red = Button(self.window, image=self.model,
+                                        font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                        activebackground="white"
+                                        , borderwidth=0, background="white", cursor="hand2", command=self.run_model_frame)
+        self.model_button_red.place(x=796, y=583)
 
 
 def win():
