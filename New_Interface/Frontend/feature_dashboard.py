@@ -41,6 +41,7 @@ class FeatureDashboard(UserDashboard):
 
 
     def apply_norm(self, dataset,file_url):
+        #todo Add this into run_model.py instead.
         method = self.chosen_normalise.get()
 
         names = dataset.columns

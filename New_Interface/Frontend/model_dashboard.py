@@ -148,23 +148,22 @@ class ModelDashboard(UserDashboard, RunModel):
         file_name = self.chosen_file.get()
         file_url = FOLDER_URL + '\\' + file_name
         read_file = self.read_single_file(file_url)
-        features = None
 
         if self.cb.get() == 1:
             features, chosen_label = self.feature_deeper_label(read_file, label, deeper_label)
         else:
-            feature, chosen_label = self.feature_label(read_file, label)
+            features, chosen_label = self.feature_label(read_file, label)
 
         if pca == 'Yes':
             if model == 'SVM':
                 self.pca_svm(features, chosen_label)
             elif model == 'Regression':
-                self.pca_regression()
+                self.pca_regression(features, chosen_label)
         else:
             if model == 'SVM':
-                self.svm
+                self.svm(features,chosen_label)
             elif model == 'Regression':
-                self.regression()
+                self.regression(features, chosen_label)
 
 
 def win():

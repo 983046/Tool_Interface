@@ -8,6 +8,10 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
+import seaborn as sns
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, recall_score, confusion_matrix
+from sklearn import tree
 
 
 class RunModel:
@@ -15,16 +19,20 @@ class RunModel:
         features = read_file.drop(label, axis=1)
         label = read_file[label]
         return features, label
-    def feature_deeper_label(self, read_file, label, deeper_label):
-        features = read_file.drop(label, axis=1)
-        data_labels = read_file
 
+    def feature_deeper_label(self, read_file, label, deeper_label):
+        data_labels = read_file
+        feature_use = read_file
+
+        # Changes all the value to 0 except if have health condition, which is changed to 1.
         data = read_file[[label]]. \
             applymap(lambda x: (0 if x != int(deeper_label) else 1))
         data_labels[label] = data[label]
 
+        features = feature_use.drop(label, axis=1)
         labels = data_labels[label]
-
+        print(features)
+        print(labels)
         return features, labels
 
     def apply_pca(self, data):
@@ -40,12 +48,7 @@ class RunModel:
         return principal_data_Df
 
     def smote(self, x, y):
-        """
-        Used for class imbalances.
-        :param x: Data
-        :param y: Labels
-        :return: Balanced data
-        """
+
         sm = SMOTE(random_state=42)
         X_sm, y_sm = sm.fit_resample(x, y)
 
@@ -72,7 +75,7 @@ class RunModel:
                                                                y_train)
         return (X_test, training_type, X_train)
 
-    def two_dim_graph_train(
+    def two_dim_graph_train(self,
             X,
             y,
             training_type,
@@ -117,13 +120,75 @@ class RunModel:
         plt.legend()
         plt.show()
 
+    def scale(self,data):
+        """
+        Reshape data of columns.
+        :param data: Data
+        :return: Reshaped data
+        """
+
+        # Scale only columns that have values greater than 1
+
+        to_scale = [col for col in data.columns if data[col].max() > 1]
+        mms = MinMaxScaler()
+        scaled = mms.fit_transform(data[to_scale])
+        scaled = pd.DataFrame(scaled, columns=to_scale)
+
+        # Replace original columns with scaled ones
+
+        for col in scaled:
+            data[col] = scaled[col]
+
+        return data
+
+    def concatenate(self,features, labels):
+        """
+        Joins features and labels together.
+        :param features: Feature data
+        :param labels: Label data
+        :return: Combined features and labels, feature columns
+        """
+
+        labels_rows = len(labels)
+        labels = np.reshape(labels.to_numpy(), (labels_rows, 1))
+
+        data = np.concatenate([features, labels], axis=1)
+        data = pd.DataFrame(data)
+
+        features_columns = features.columns
+        features_labels = np.append(features_columns, 'label')
+
+        data.columns = features_labels
+
+        return (data, features_columns)
+
+    def normalization(self,concatenate_data_labels, features_columns):
+        """
+        Makes all the values to be between 0 to 1 for rows.
+        :param concatenate_data_labels: Joined data and labels
+        :param features_columns: Columns of features
+        :return: Normalized data, feature columns
+        """
+
+        data = concatenate_data_labels.loc[:, features_columns].values
+        normalizer = StandardScaler()
+        data = normalizer.fit_transform(data)
+        feat_cols = ['feature' + str(i) for i in range(data.shape[1])]
+        Feature_named_column = pd.DataFrame(data, columns=feat_cols)
+        return (data, Feature_named_column)
 
 
     def pca_svm(self, features, label):
-        principal_components_data = self.apply_pca(features)
+        concatenate_data_labels, features_columns = self.concatenate(features,
+                                                                  label)
+        # PCA
+        x_data, feature_named_column = \
+            self.normalization(concatenate_data_labels, features_columns)
+
+        principal_components_data = self.apply_pca(x_data)
         features = self.covert_to_dataframe(principal_components_data)
         #todo Hassan do you think we need scale
-        #features = self.scale(features)
+        features = self.scale(features)
 
         X_train, X_test, y_train, y_test = self.smote(features, label)
 
@@ -153,10 +218,105 @@ class RunModel:
 
 
 
-    def pca_regression(self):
-        return
-    def svm(self):
-        return
-    def regression(self):
-        return
+    def pca_regression(self,features, label):
+        concatenate_data_labels, features_columns = self.concatenate(features,
+                                                                  label)
+        # PCA
+        x_data, feature_named_column = \
+            self.normalization(concatenate_data_labels, features_columns)
+
+        principal_components_data = self.apply_pca(x_data)
+        features = self.covert_to_dataframe(principal_components_data)
+        #todo Hassan do you think we need scale
+        features = self.scale(features)
+
+        X_train, X_test, y_train, y_test = self.smote(features, label)
+
+        training_type = RandomForestClassifier(random_state=42)
+        training_type.fit(X_train, y_train)
+        preds = cross_val_predict(training_type, X_test, y_test, cv=10)
+
+        print("Random forest classifier: ")
+        print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
+              f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        cm = confusion_matrix(y_test, preds)
+        print(cm)
+
+
+        plt.figure(figsize=(5, 7))
+        ax = sns.distplot(y_test, hist=False, color="r", label="Actual Value")
+        sns.distplot(preds, hist=False, color="b", label="Fitted Values", ax=ax)
+        plt.title('Actual vs Fitted Values')
+        plt.tight_layout()
+        plt.show()
+        plt.close()
+
+        Tree = training_type.estimators_[5]
+        plt.figure(figsize=(25, 15))
+        tree.plot_tree(Tree, filled=True,
+                       rounded=True,
+                       fontsize=14);
+        plt.show()
+        plt.close()
+
+    def svm(self, features, label):
+        # SMOTE
+        X_train, X_test, y_train, y_test = self.smote(features, label)
+        X_test, training_type, X_train = self.run_svm(X_train, X_test, y_train)
+
+        scores = cross_val_score(training_type, X_test, y_test, cv=10,
+                                 scoring='accuracy')
+
+        accuracy_text = 'Accuracy: %0.2f (+/- %0.2f)' % (scores.mean(),
+                                                         scores.std() * 2)
+        accuracy_text = 'SVM: ' + accuracy_text
+        print(accuracy_text)
+
+        # CM
+        y_pred = training_type.predict(X_test)
+        cm = confusion_matrix(y_test, y_pred)
+        print('This is SVM confusion matrix: ')
+        print(cm)
+
+        plt.figure(figsize=(5, 7))
+        ax = sns.distplot(y_test, hist=False, color='r',
+                          label='Actual Value')
+        sns.distplot(y_pred, hist=False, color='b', label='Fitted Values',
+                     ax=ax)
+        plt.title('Actual vs Fitted Values')
+        plt.show()
+        plt.close()
+
+
+
+
+    def regression(self, features, labels):
+        x = self.scale(features)
+        X_train, X_test, y_train, y_test = self.smote(x, labels)
+
+        training_type = RandomForestClassifier(random_state=42)
+        training_type.fit(X_train, y_train)
+        preds = cross_val_predict(training_type, X_test, y_test, cv=10)
+
+        print("Random forest classifier: ")
+        print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
+              f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        cm = confusion_matrix(y_test, preds)
+        print(cm)
+
+        plt.figure(figsize=(5, 7))
+        ax = sns.distplot(y_test, hist=False, color="r", label="Actual Value")
+        sns.distplot(preds, hist=False, color="b", label="Fitted Values", ax=ax)
+        plt.title('Actual vs Fitted Values')
+        plt.tight_layout()
+        plt.show()
+        plt.close()
+
+        Tree = training_type.estimators_[5]
+        plt.figure(figsize=(25, 15))
+        tree.plot_tree(Tree, filled=True,
+                       rounded=True,
+                       fontsize=14);
+        plt.show()
+        plt.close()
 

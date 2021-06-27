@@ -38,6 +38,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\New_Interface\Frontend\joined_files\Testing2.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\New_Interface\Frontend\joined_files\bob.csv">
           <value>
             <Attribute>
