@@ -4,6 +4,7 @@ import time
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 
+from sklearn import preprocessing
 from ttkthemes import themed_tk as tk
 from tkinter import ttk, messagebox
 from PIL import ImageTk
@@ -39,33 +40,61 @@ class FeatureDashboard(UserDashboard):
         self.set_frame()
 
 
+    def apply_norm(self, dataset,file_url):
+        method = self.chosen_normalise.get()
+
+        names = dataset.columns
+        if method == 'Normalizer':
+            scaler = preprocessing.Normalizer()
+        elif method == 'MinMaxScaler':
+            scaler = preprocessing.MinMaxScaler()
+        elif method == 'StandardScaler':
+            scaler = preprocessing.StandardScaler()
+        else:
+            return
+
+        d = scaler.fit(dataset)
+        scaled_np = d.transform(dataset)
+        scaled_df = pd.DataFrame(scaled_np, columns=names)
+        scaled_df.to_csv(file_url)
+
     def apply_pressed(self):
         choice = self.chosen_na_value.get()
         file_name = self.chosen_file.get()
         file_url = FOLDER_URL + '\\' + file_name
 
         read_file = self.read_single_file(file_url)
-        df = pd.DataFrame(read_file, columns=read_file.columns)
 
         if choice == 'mean':
-            read_file.fillna(read_file.mean())
+            #todo working out the mean
+            where_are_NaNs = np.isnan(read_file)
+            read_file[where_are_NaNs] = read_file.mean(axis=1)
+            read_file = read_file
+            df = pd.DataFrame(read_file, columns=read_file.columns)
             df.to_csv(file_url)
         elif choice == 'zero':
-            read_file.fillna(0)
+            where_are_NaNs = np.isnan(read_file)
+            read_file[where_are_NaNs] = 0
+            read_file = read_file
+            df = pd.DataFrame(read_file, columns=read_file.columns)
             df.to_csv(file_url)
         elif choice == 'one':
-            read_file.fillna(1)
+            where_are_NaNs = np.isnan(read_file)
+            read_file[where_are_NaNs] = 1
+            read_file = read_file
+            df = pd.DataFrame(read_file, columns=read_file.columns)
             df.to_csv(file_url)
         elif choice == 'em':
             None
 
+        self.apply_norm(read_file,file_url)
 
         self.display_dataframe_image = ImageTk.PhotoImage \
             (file='images\\edit_table_button_red.png')
         self.display_dataframe_button = Button(self.window, image=self.display_dataframe_image,
                                         font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
                                         , borderwidth=0, background="white", cursor="hand2", command=self.display_dataframe)
-        self.display_dataframe_button.place(x=800, y=220)
+        self.display_dataframe_button.place(x=1000, y=220)
 
         self.model = ImageTk.PhotoImage \
             (file='images\\model_button_red.png')
@@ -117,20 +146,27 @@ class FeatureDashboard(UserDashboard):
                                           *self.na_values)
             comboLab.place(x=407, y=250)
 
+        self.normalise = ['Normalizer', 'MinMaxScaler', 'StandardScaler', 'em']
+        self.chosen_normalise = StringVar(self.window)
+        comboLab = OptionMenu(self.window, self.chosen_normalise,
+                              *self.normalise)
+        comboLab.place(x=578, y=250)
+
 
         self.apply = ImageTk.PhotoImage \
             (file='images\\apply_button_red.png')
         self.apply_button = Button(self.window, image=self.apply,
                                         font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
                                         , borderwidth=0, background="white", cursor="hand2", command=self.apply_pressed)
-        self.apply_button.place(x=600, y=220)
+        self.apply_button.place(x=800, y=220)
+
 
         self.display_dataframe_image = ImageTk.PhotoImage \
             (file='images\\edit_table_button_grey.png')
         self.display_dataframe_button = Button(self.window, image=self.display_dataframe_image,
                                         font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
                                         , borderwidth=0, background="white", cursor="hand2", command=self.display_dataframe)
-        self.display_dataframe_button.place(x=800, y=220)
+        self.display_dataframe_button.place(x=1000, y=220)
 
 
     def run_model_frame(self):

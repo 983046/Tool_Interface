@@ -894,13 +894,17 @@ def field_pca_entries(
         health_condition,
         code_value,
     )
+
     (concatenate_data_labels, features_columns) = concatenate(features,
                                                               labels)
 
     # PCA
     (x_data, feature_named_column) = \
         normalization(concatenate_data_labels, features_columns)
+
     (pca_data, principal_components_data) = pca(x_data)
+
+
     x = covert_to_dataframe(principal_components_data)
 
     # Scale
