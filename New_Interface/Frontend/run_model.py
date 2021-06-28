@@ -196,7 +196,7 @@ class RunModel:
 
         X_test, training_type, X_train = self.run_svm(X_train,X_test,y_train)
 
-        scores = cross_val_score(training_type, X_test, y_test, cv=10,
+        scores = cross_val_predict(training_type, X_test, y_test, cv=10,
                                  scoring='accuracy')
 
         accuracy_text = 'Accuracy: %0.2f (+/- %0.2f)' % (scores.mean(),
@@ -264,8 +264,7 @@ class RunModel:
         X_train, X_test, y_train, y_test = self.smote(features, label)
         X_test, training_type, X_train = self.run_svm(X_train, X_test, y_train)
 
-        scores = cross_val_score(training_type, X_test, y_test, cv=10,
-                                 scoring='accuracy')
+        scores = cross_val_predict(training_type, X_test, y_test, cv=10)
 
         accuracy_text = 'Accuracy: %0.2f (+/- %0.2f)' % (scores.mean(),
                                                          scores.std() * 2)
