@@ -97,13 +97,16 @@ class FeatureDashboard(UserDashboard):
                                         , borderwidth=0, background="white", cursor="hand2", command=self.display_dataframe)
         self.display_dataframe_button.place(x=1000, y=220)
 
-        self.model = ImageTk.PhotoImage \
-            (file='images\\model_button_red.png')
-        self.model_button_red = Button(self.window, image=self.model,
-                                       font=("yu gothic ui", 13, "bold"), relief=FLAT,
-                                       activebackground="white"
-                                       , borderwidth=0, background="white", cursor="hand2", command=self.run_model_frame)
-        self.model_button_red.place(x=796, y=583)
+        # self.model = ImageTk.PhotoImage \
+        #     (file='images\\model_button_red.png')
+        # self.model_button_red = Button(self.window, image=self.model,
+        #                                font=("yu gothic ui", 13, "bold"), relief=FLAT,
+        #                                activebackground="white"
+        #                                , borderwidth=0, background="white", cursor="hand2", command=self.run_model_frame)
+        # self.model_button_red.place(x=796, y=583)
+
+        self.model_button_red.configure(state="active")
+
 
 
 
@@ -124,7 +127,7 @@ class FeatureDashboard(UserDashboard):
                                               font=("yu gothic ui", 13, "bold"), relief=FLAT,
                                               activebackground="white"
                                               , borderwidth=0, background="white", cursor="hand2",
-                                              command=self.click_next_file)
+                                              command=self.run_feature_frame)
         self.next_feature_button_blue.place(x=477, y=583)
 
         self.feature_dashboard_frame = ImageTk.PhotoImage \
@@ -168,6 +171,27 @@ class FeatureDashboard(UserDashboard):
                                         font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
                                         , borderwidth=0, background="white", cursor="hand2", command=self.display_dataframe)
         self.display_dataframe_button.place(x=1000, y=220)
+
+        self.model = ImageTk.PhotoImage \
+            (file='images\\model_button_red.png')
+        self.model_button_red = Button(self.window, image=self.model,
+                                       font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                       activebackground="white"
+                                       , borderwidth=0, background="white", cursor="hand2",
+                                       command=self.run_model_frame)
+        self.model_button_red.configure(state="disabled")
+        self.model_button_red.place(x=796, y=583)
+
+        self.continue_button = ImageTk.PhotoImage \
+            (file='images\\continue_button_red.png')
+        self.click_continue_button = Button(self.window, image=self.continue_button,
+                                        font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
+                                        , borderwidth=0, background="white", cursor="hand2", command=self.continue_pressed)
+        self.click_continue_button.place(x=1000, y=300)
+
+    def continue_pressed(self):
+        self.model_button_red.configure(state="active")
+
 
 
     def run_model_frame(self):
@@ -269,13 +293,20 @@ class FeatureDashboard(UserDashboard):
                                                command=self.click_next_file)
         self.next_feature_button_red.place(x=477, y=583)
 
-        self.model = ImageTk.PhotoImage \
-            (file='images\\model_button_blue.png')
-        self.model_button_red = Button(self.window, image=self.model,
-                                        font=("yu gothic ui", 13, "bold"), relief=FLAT,
-                                        activebackground="white"
-                                        , borderwidth=0, background="white", cursor="hand2", command=self.run_model_frame)
-        self.model_button_red.place(x=796, y=583)
+
+        if str(self.model_button_red['state']) == 'active':
+            self.model_button_red.configure(state="active")
+        else:
+            self.model_button_red.configure(state="disabled")
+
+
+        # self.model = ImageTk.PhotoImage \
+        #     (file='images\\model_button_red.png')
+        # self.model_button_red = Button(self.window, image=self.model,
+        #                                 font=("yu gothic ui", 13, "bold"), relief=FLAT,
+        #                                 activebackground="white"
+        #                                 , borderwidth=0, background="white", cursor="hand2", command=self.run_model_frame)
+        # self.model_button_red.place(x=796, y=583)
 
 
 def win():
