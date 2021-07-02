@@ -5,13 +5,14 @@ from tkinter import *
 from tkinter.filedialog import askopenfilename
 
 from ttkthemes import themed_tk as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, simpledialog
 from PIL import ImageTk
 import pandas as pd
 
 #todo Validation for buttons and saving single file
 
 file_path = []
+SAVED_FILE_URL = r'C:\Users\marci\OneDrive\Other\Desktop\Shared\Tool_Interface\New_Interface\Frontend\joined_files'
 
 class UserDashboard:
     def __init__(self, window):
@@ -60,8 +61,24 @@ class UserDashboard:
                                                   font=("yu gothic ui", 13, "bold"), relief=FLAT,
                                                   activebackground="white"
                                                   , borderwidth=0, background="white", cursor="hand2",
-                                                  command=self.run_feature_frame())
+                                                  command=self.run_feature_frame)
         self.next_feature_button_red.place(x=475, y=582)
+
+        if len(self.get_selection()) != 0:
+            boolean_selection = messagebox.askquestion("Save Selection", "Would you like to save the selection")
+            if boolean_selection == 'yes':
+                user_input = simpledialog.askstring(title="File Name", prompt="Enter name for the file.:")
+                file_url = SAVED_FILE_URL + '\\' + user_input + '.csv'
+
+                self.listbox_object = self.get_selection()
+                file = self.read_selected_files()
+                df = pd.DataFrame(file[0], columns=file[0].columns)
+
+
+                df.to_csv(file_url)
+                messagebox.showinfo("File name", "File saved as: \n {}".format(user_input))
+            else:
+                None
 
     def run_feature_frame(self):
         win = Toplevel()
@@ -210,6 +227,8 @@ class UserDashboard:
 
         except IndexError:
             pass
+
+
 
     def read_selected_files(self):
         files = []

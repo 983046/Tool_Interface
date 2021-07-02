@@ -87,7 +87,6 @@ class ModelDashboard(UserDashboard, RunModel):
                                           *self.files)
             self.combo_chosen_file.place(x=120, y=250)
 
-
     def label_section(self):
         file_name = self.chosen_file.get()
         file_url = FOLDER_URL + '\\' + file_name
@@ -133,7 +132,7 @@ class ModelDashboard(UserDashboard, RunModel):
         self.inFileTxt.configure(state="disabled")
         self.inFileTxt.place(x=800, y=250)
 
-        self.model_value = ['SVM', 'Regression']
+        self.model_value = ['SVM', 'Regression', 'MLPRegressor']
         self.chosen_model_value = StringVar(self.window)
         combo_model_value = OptionMenu(self.window, self.chosen_model_value, *self.model_value)
         combo_model_value.place(x=120, y=380)
@@ -151,6 +150,12 @@ class ModelDashboard(UserDashboard, RunModel):
                                         , borderwidth=0, background="white", cursor="hand2", command=self.chosen_model)
         self.apply_button.place(x=600, y=380)
 
+        self.explanation = ImageTk.PhotoImage \
+            (file='images\\explanation_button_red.png')
+        self.explanation_button = Button(self.window, image=self.explanation,
+                                   font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
+                                   , borderwidth=0, background="white", cursor="hand2", command=self.get_importance)
+        self.explanation_button.place(x=800, y=380)
 
     def isChecked(self):
         if self.cb.get() == 1:
@@ -159,9 +164,6 @@ class ModelDashboard(UserDashboard, RunModel):
             self.inFileTxt.configure(state="disabled")
         else:
             messagebox.showerror('PythonGuides', 'Something went wrong!')
-
-
-
 
     def chosen_model(self):
         label = self.label.get()
@@ -183,11 +185,22 @@ class ModelDashboard(UserDashboard, RunModel):
                 self.pca_svm(features, chosen_label)
             elif model == 'Regression':
                 self.pca_regression(features, chosen_label)
+            elif model == 'MLPRegressor':
+                pass
         else:
             if model == 'SVM':
-                self.svm(features,chosen_label)
+                #todo this is not supported
+                self.training_type, X_train = self.svm(features,chosen_label)
             elif model == 'Regression':
-                self.regression(features, chosen_label)
+                self.training_type, self.X_train = self.regression(features, chosen_label)
+            elif model == 'MLPRegressor':
+                self.MLPRegression(features, chosen_label)
+
+
+
+    def get_importance(self):
+        self.importance_plot(self.training_type, self.X_train)
+
 
     def click_add(self):
         add_frame = Frame(self.window)
@@ -290,3 +303,7 @@ def win():
 
 if __name__ == '__main__':
     win()
+
+
+
+

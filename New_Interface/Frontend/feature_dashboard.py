@@ -66,26 +66,26 @@ class FeatureDashboard(UserDashboard):
 
         read_file = self.read_single_file(file_url)
 
-        if choice == 'mean':
+        if choice == 'Mean':
             #todo working out the mean
             where_are_NaNs = np.isnan(read_file)
             read_file[where_are_NaNs] = read_file.mean(axis=1)
             read_file = read_file
             df = pd.DataFrame(read_file, columns=read_file.columns)
             df.to_csv(file_url)
-        elif choice == 'zero':
+        elif choice == 'Zero':
             where_are_NaNs = np.isnan(read_file)
             read_file[where_are_NaNs] = 0
             read_file = read_file
             df = pd.DataFrame(read_file, columns=read_file.columns)
             df.to_csv(file_url)
-        elif choice == 'one':
+        elif choice == 'One':
             where_are_NaNs = np.isnan(read_file)
             read_file[where_are_NaNs] = 1
             read_file = read_file
             df = pd.DataFrame(read_file, columns=read_file.columns)
             df.to_csv(file_url)
-        elif choice == 'em':
+        elif choice == 'Nothing':
             None
 
         self.apply_norm(read_file,file_url)
@@ -143,14 +143,14 @@ class FeatureDashboard(UserDashboard):
                                           *self.files)
             comboLab.place(x=120, y=250)
 
-        self.na_values = ['mean', 'zero', 'one', 'em']
+        self.na_values = ['Mean', 'Zero', 'One', 'Nothing']
         if len(self.na_values) != 0:
             self.chosen_na_value = StringVar(self.window)
             comboLab = OptionMenu(self.window, self.chosen_na_value,
                                           *self.na_values)
             comboLab.place(x=407, y=250)
 
-        self.normalise = ['Normalizer', 'MinMaxScaler', 'StandardScaler', 'em']
+        self.normalise = ['Normalizer', 'MinMaxScaler', 'StandardScaler', 'Nothing']
         self.chosen_normalise = StringVar(self.window)
         comboLab = OptionMenu(self.window, self.chosen_normalise,
                               *self.normalise)
@@ -319,3 +319,54 @@ def win():
 
 if __name__ == '__main__':
     win()
+
+
+
+# def chnageDs(dataset,listType):
+#     droped = 0
+#     for i in range(len(dataset.columns)):
+#             col = dataset.columns[i-droped]
+#             print(i,col,listType[i],droped)
+#             if listType[i] == 'cat':
+#                     dataset[col] = pd.factorize(dataset[col])[0]
+#             elif listType[i] == 'drop':
+#                   #print('drop')
+#                   dataset = dataset.drop([col], axis=1)
+#                   #print(len(dataset.columns))
+#                   droped = droped + 1
+#             else:
+#                   dataset[col] = dataset[col].astype(listType[i])
+#     return dataset
+# dataset[col] = pd.factorize(dataset[col])[0]
+
+
+# def pca(data,n_components):
+#     '''
+#        tun pca on a dataset
+#        @x : data
+#        @n_components : how many commponent needed
+#        @retun : eigen values and vectores
+#     '''
+#     print('pca',n_components)
+#     pca_data = PCA(n_components=n_components)
+#     principal_components_data = pca_data.fit_transform(data)
+#      todo use this:
+#     eighenValues = pca_data.explained_variance_ratio_
+#     plt.plot(eighenValues[:20])
+#     plt.show()
+#     return (pca_data, principal_components_data)
+
+# n_components = 'mle'
+# #n_components = 4
+# pcaCom = pca(x,n_components)
+
+#todo train/test balance.
+#u, c = np.unique(y_testOrg, return_counts=True)
+
+#todo
+# MLE
+# Testing and training split : outputs 50% 50%
+# Buttons for forest.
+# PCA - Number of components.
+
+

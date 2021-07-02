@@ -1,17 +1,18 @@
-from sklearn.decomposition import PCA
-import pandas as pd
-from imblearn.over_sampling import SMOTE
-from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import *
-from sklearn.svm import SVC
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
+import numpy as np
+import pandas as pd
 import seaborn as sns
+import shap
+from imblearn.over_sampling import SMOTE
+from matplotlib.colors import ListedColormap
+from sklearn import tree
+from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, recall_score, confusion_matrix
-from sklearn import tree
+from sklearn.model_selection import *
+from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.svm import SVC
 
 
 class RunModel:
@@ -40,8 +41,8 @@ class RunModel:
         principal_components_data = pca_data.fit_transform(data)
         return principal_components_data
 
-    def covert_to_dataframe(self,principal_components_data):
-        #todo Hassan code here in future. Ask question
+    def covert_to_dataframe(self, principal_components_data):
+        # todo Hassan code here in future. Ask question
         principal_data_Df = pd.DataFrame(data=principal_components_data,
                                          columns=['principal component 1',
                                                   'principal component 2'])
@@ -61,10 +62,11 @@ class RunModel:
         X_train, X_test, y_train, y_test = train_test_split(
             X_sm, y_sm, random_state=42)
 
+        # todo split them.
         return X_train, X_test, y_train, y_test
 
     def run_svm(self, X_train, X_test, y_train):
-        #todo I dont need these?
+        # todo I dont need these?
         normaliser = StandardScaler()
         normaliser.fit(X_train)
         X_train = normaliser.transform(X_train)
@@ -76,11 +78,11 @@ class RunModel:
         return (X_test, training_type, X_train)
 
     def two_dim_graph_train(self,
-            X,
-            y,
-            training_type,
-            number_of_columns,
-    ):
+                            X,
+                            y,
+                            training_type,
+                            number_of_columns,
+                            ):
         """
         Shows the graph of passed in data and labels.
         :param X: Data
@@ -120,7 +122,7 @@ class RunModel:
         plt.legend()
         plt.show()
 
-    def scale(self,data):
+    def scale(self, data):
         """
         Reshape data of columns.
         :param data: Data
@@ -141,7 +143,7 @@ class RunModel:
 
         return data
 
-    def concatenate(self,features, labels):
+    def concatenate(self, features, labels):
         """
         Joins features and labels together.
         :param features: Feature data
@@ -162,7 +164,7 @@ class RunModel:
 
         return (data, features_columns)
 
-    def normalization(self,concatenate_data_labels, features_columns):
+    def normalization(self, concatenate_data_labels, features_columns):
         """
         Makes all the values to be between 0 to 1 for rows.
         :param concatenate_data_labels: Joined data and labels
@@ -177,24 +179,21 @@ class RunModel:
         Feature_named_column = pd.DataFrame(data, columns=feat_cols)
         return (data, Feature_named_column)
 
-
     def pca_svm(self, features, label):
         concatenate_data_labels, features_columns = self.concatenate(features,
-                                                                  label)
+                                                                     label)
         # PCA
         x_data, feature_named_column = \
             self.normalization(concatenate_data_labels, features_columns)
 
         principal_components_data = self.apply_pca(x_data)
         features = self.covert_to_dataframe(principal_components_data)
-        #todo Hassan do you think we need scale
-        features = self.scale(features)
+        # todo Hassan do you think we need scale
+        # features = self.scale(features)
 
         X_train, X_test, y_train, y_test = self.smote(features, label)
 
-
-
-        X_test, training_type, X_train = self.run_svm(X_train,X_test,y_train)
+        X_test, training_type, X_train = self.run_svm(X_train, X_test, y_train)
 
         scores = cross_val_predict(training_type, X_test, y_test, cv=10)
 
@@ -215,19 +214,17 @@ class RunModel:
         # Print
         self.two_dim_graph_train(X_train, y_train, training_type, number_of_col)
 
-
-
-    def pca_regression(self,features, label):
+    def pca_regression(self, features, label):
         concatenate_data_labels, features_columns = self.concatenate(features,
-                                                                  label)
+                                                                     label)
         # PCA
         x_data, feature_named_column = \
             self.normalization(concatenate_data_labels, features_columns)
 
         principal_components_data = self.apply_pca(x_data)
         features = self.covert_to_dataframe(principal_components_data)
-        #todo Hassan do you think we need scale
-        features = self.scale(features)
+        # todo Hassan do you think we need scale
+        # features = self.scale(features)
 
         X_train, X_test, y_train, y_test = self.smote(features, label)
 
@@ -240,7 +237,6 @@ class RunModel:
               f'\nRecall = {recall_score(y_test, preds):.2f}\n')
         cm = confusion_matrix(y_test, preds)
         print(cm)
-
 
         plt.figure(figsize=(5, 7))
         ax = sns.distplot(y_test, hist=False, color="r", label="Actual Value")
@@ -285,8 +281,7 @@ class RunModel:
         plt.show()
         plt.close()
 
-
-
+        return training_type, X_train
 
     def regression(self, features, labels):
         x = self.scale(features)
@@ -318,3 +313,28 @@ class RunModel:
         plt.show()
         plt.close()
 
+        return training_type, X_train
+
+    def importance_plot(self, training_type, X_train):
+        expShap = shap.TreeExplainer(training_type)
+        shap_values = expShap.shap_values(X_train)
+        shap.summary_plot(shap_values[0], X_train, plot_type='dot')
+        shap.summary_plot(shap_values, X_train, plot_type='bar')
+        # self.shap_plot(0, training_type, X_train)
+
+    def shap_plot(self, j, training_type, X_train):
+        explainerModel = shap.TreeExplainer(training_type)
+        shap_values_Model = explainerModel.shap_values(X_train)
+        # shap.force_plot(explainerModel.expected_value[j], shap_values_Model[j])
+
+    def MLPRegression(self, features, labels):
+        max_iter = 1000
+        hidden_layer_sizes = 15
+        features = self.scale(features)
+        X_train, X_test, y_train, y_test = self.smote(features, labels)
+
+        clf = MLPClassifier(solver='lbfgs', alpha=1e-5, max_iter=max_iter,
+                            hidden_layer_sizes=hidden_layer_sizes, random_state=1)
+        clf.fit(X_train, y_train)
+        y_pred = clf.predict(X_test)
+        print(clf.score(X_test, y_pred))
