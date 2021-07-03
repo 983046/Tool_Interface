@@ -75,14 +75,23 @@ class ConcatenateFiles(UserDashboard):
         self.feature_button_red.configure(state="disabled")
         self.feature_button_red.place(x=150, y=24)
 
-        self.model = ImageTk.PhotoImage \
-            (file='images\\model_button_red.png')
-        self.model_button_red = Button(self.window, image=self.model,
+        self.extract = ImageTk.PhotoImage \
+            (file='images\\extract_button_blue.png')
+        self.extract_button_red = Button(self.window, image=self.extract,
                                         font=("yu gothic ui", 13, "bold"), relief=FLAT,
                                         activebackground="white"
                                         , borderwidth=0, background="white", cursor="hand2")
-        self.model_button_red.configure(state="disabled")
-        self.model_button_red.place(x=278, y=24)
+        self.extract_button_red.configure(state="disabled")
+        self.extract_button_red.place(x=278, y=24)
+
+        # self.model = ImageTk.PhotoImage \
+        #     (file='images\\model_button_red.png')
+        # self.model_button_red = Button(self.window, image=self.model,
+        #                                 font=("yu gothic ui", 13, "bold"), relief=FLAT,
+        #                                 activebackground="white"
+        #                                 , borderwidth=0, background="white", cursor="hand2")
+        # self.model_button_red.configure(state="disabled")
+        # self.model_button_red.place(x=278, y=24)
 
         self.add = ImageTk.PhotoImage \
             (file='images\\add_button_blue.png')

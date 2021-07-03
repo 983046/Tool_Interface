@@ -52,7 +52,7 @@ class FeatureDashboard(UserDashboard):
         scaled_df.to_csv(file_url)
 
     def apply_pressed(self):
-        self.model_button_red.configure(state="active")
+        self.extract_button_red.configure(state="active")
         choice = self.chosen_na_value.get()
         file_name = self.chosen_file.get()
         file_url = FOLDER_URL + '\\' + file_name
@@ -83,12 +83,8 @@ class FeatureDashboard(UserDashboard):
 
         self.apply_norm(read_file,file_url)
 
-        self.display_dataframe_image = ImageTk.PhotoImage \
-            (file='images\\edit_table_button_red.png')
-        self.display_dataframe_button = Button(self.window, image=self.display_dataframe_image,
-                                        font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
-                                        , borderwidth=0, background="white", cursor="hand2", command=self.display_dataframe)
-        self.display_dataframe_button.place(x=1000, y=220)
+        self.display_dataframe_button.configure(state="active")
+
 
         # self.model = ImageTk.PhotoImage \
         #     (file='images\\model_button_red.png')
@@ -98,7 +94,6 @@ class FeatureDashboard(UserDashboard):
         #                                , borderwidth=0, background="white", cursor="hand2", command=self.run_model_frame)
         # self.model_button_red.place(x=796, y=583)
 
-        self.model_button_red.configure(state="active")
 
     def set_frame(self):
         add_frame = Frame(self.window)
@@ -125,14 +120,23 @@ class FeatureDashboard(UserDashboard):
                                               command=self.run_feature_frame)
         self.feature_button_blue.place(x=150, y=24)
 
-        self.model = ImageTk.PhotoImage \
-            (file='images\\model_button_red.png')
-        self.model_button_red = Button(self.window, image=self.model,
+        # self.model = ImageTk.PhotoImage \
+        #     (file='images\\model_button_red.png')
+        # self.model_button_red = Button(self.window, image=self.model,
+        #                                 font=("yu gothic ui", 13, "bold"), relief=FLAT,
+        #                                 activebackground="white"
+        #                                 , borderwidth=0, background="white", cursor="hand2",command=self.run_model_frame)
+        # self.model_button_red.configure(state="disabled")
+        # self.model_button_red.place(x=278, y=24)
+
+        self.extract = ImageTk.PhotoImage \
+            (file='images\\extract_button_red.png')
+        self.extract_button_red = Button(self.window, image=self.extract,
                                         font=("yu gothic ui", 13, "bold"), relief=FLAT,
                                         activebackground="white"
-                                        , borderwidth=0, background="white", cursor="hand2",command=self.run_model_frame)
-        self.model_button_red.configure(state="disabled")
-        self.model_button_red.place(x=278, y=24)
+                                        , borderwidth=0, background="white", cursor="hand2", command=self.run_extract_frame)
+        self.extract_button_red.configure(state="disabled")
+        self.extract_button_red.place(x=278, y=24)
 
 
         self.files = self.read_folder(FOLDER_URL)
@@ -182,10 +186,10 @@ class FeatureDashboard(UserDashboard):
         self.selected_shape_red.place(x=188, y=120)
 
 
-    def run_model_frame(self):
+    def run_extract_frame(self):
         win = Toplevel()
-        from New_Interface.Frontend import model_dashboard
-        model_dashboard.ModelDashboard(win)
+        from New_Interface.Frontend import extraction_dashboard
+        extraction_dashboard.ExtractionDashboard(win)
         self.window.withdraw()
         win.deiconify()
 
