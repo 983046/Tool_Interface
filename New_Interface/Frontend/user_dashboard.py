@@ -154,6 +154,15 @@ class UserDashboard:
                                              , borderwidth=0, background="white", cursor="hand2")
         self.selected_shape_red.place(x=55, y=120)
 
+        self.model = ImageTk.PhotoImage \
+            (file='images\\model_button_red.png')
+        self.model_button_red = Button(self.window, image=self.model,
+                                        font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                        activebackground="white"
+                                        , borderwidth=0, background="white", cursor="hand2")
+        self.model_button_red.configure(state="disabled")
+        self.model_button_red.place(x=410, y=24)
+
     def click_concatenate_file_user(self):
         if len(self.get_selection()) >= 2:
             if self.check_file_type() == True:

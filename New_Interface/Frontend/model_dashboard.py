@@ -86,6 +86,15 @@ class ModelDashboard(UserDashboard, RunModel):
                                         , borderwidth=0, background="white", cursor="hand2", command=self.run_model_frame)
         self.model_button_red.place(x=796, y=583)
 
+        self.model = ImageTk.PhotoImage \
+            (file='images\\model_button_red.png')
+        self.model_button_red = Button(self.window, image=self.model,
+                                        font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                        activebackground="white"
+                                        , borderwidth=0, background="white", cursor="hand2", command=self.run_model_frame)
+        self.model_button_red.configure(state="disabled")
+        self.model_button_red.place(x=410, y=24)
+
         self.files = self.read_folder(FOLDER_URL)
         if len(self.files) != 0:
             self.chosen_file = StringVar(self.window)

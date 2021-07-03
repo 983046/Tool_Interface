@@ -56,7 +56,7 @@ class ExtractionDashboard(UserDashboard, RunModel):
                                               font=("yu gothic ui", 13, "bold"), relief=FLAT,
                                               activebackground="white"
                                               , borderwidth=0, background="white", cursor="hand2",
-                                              command=self.click_next_file)
+                                              command=self.run_feature_frame)
         self.feature_button_blue.place(x=150, y=24)
 
 
@@ -72,7 +72,7 @@ class ExtractionDashboard(UserDashboard, RunModel):
         self.extract_button_red = Button(self.window, image=self.extract,
                                         font=("yu gothic ui", 13, "bold"), relief=FLAT,
                                         activebackground="white"
-                                        , borderwidth=0, background="white", cursor="hand2", command=self.run_model_frame)
+                                        , borderwidth=0, background="white", cursor="hand2", command=self.run_extraction_frame)
         self.extract_button_red.place(x=278, y=24)
 
         self.selected_shape = ImageTk.PhotoImage \
@@ -82,13 +82,14 @@ class ExtractionDashboard(UserDashboard, RunModel):
                                          , borderwidth=0, background="white", cursor="hand2")
         self.selected_shape_red.place(x=313, y=120)
 
-        # self.model = ImageTk.PhotoImage \
-        #     (file='images\\model_button_blue.png')
-        # self.model_button_red = Button(self.window, image=self.model,
-        #                                 font=("yu gothic ui", 13, "bold"), relief=FLAT,
-        #                                 activebackground="white"
-        #                                 , borderwidth=0, background="white", cursor="hand2", command=self.run_model_frame)
-        # self.model_button_red.place(x=278, y=24)
+        self.model = ImageTk.PhotoImage \
+            (file='images\\model_button_red.png')
+        self.model_button_red = Button(self.window, image=self.model,
+                                        font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                        activebackground="white"
+                                        , borderwidth=0, background="white", cursor="hand2", command=self.run_model_frame)
+        self.model_button_red.configure(state="disabled")
+        self.model_button_red.place(x=410, y=24)
 
         self.files = self.read_folder(FOLDER_URL)
         if len(self.files) != 0:
@@ -106,6 +107,21 @@ class ExtractionDashboard(UserDashboard, RunModel):
                                            , borderwidth=0, background="white", cursor="hand2", command=self.pressed_model_frame)
         self.next_frame_button_red.configure(state="disabled")
         self.next_frame_button_red.place(x=1000, y=450)
+
+    def run_extraction_frame(self):
+        win = Toplevel()
+        from New_Interface.Frontend import extraction_dashboard
+        extraction_dashboard.ExtractionDashboard(win)
+        self.window.withdraw()
+        win.deiconify()
+
+
+    def run_feature_frame(self):
+        win = Toplevel()
+        from New_Interface.Frontend import feature_dashboard
+        feature_dashboard.FeatureDashboard(win)
+        self.window.withdraw()
+        win.deiconify()
 
     def label_section(self):
         file_name = self.chosen_file.get()
@@ -135,47 +151,15 @@ class ExtractionDashboard(UserDashboard, RunModel):
         if label == '':
             messagebox.showinfo("Label not selected", "Need to select a label")
         else:
-            pass
-            #todo run different Model_Frame here.
+            self.model_button_red.configure("activate")
+
 
     def run_model_frame(self):
         win = Toplevel()
-        from New_Interface.Frontend import extraction_dashboard
-        extraction_dashboard.ExtractionDashboard(win)
+        from New_Interface.Frontend import model_dashboard
+        model_dashboard.ModelDashboard(win)
         self.window.withdraw()
         win.deiconify()
-
-    def deeper_label(self):
-        # self.specific_value = read_file[label]
-        # self.chosen_specific_value = StringVar(self.window)
-        # self.combo_specific_value = OptionMenu(self.window, self.chosen_specific_value, *self.specific_value)
-        # self.combo_specific_value.configure(state="disabled")
-        # self.combo_specific_value.place(x=500, y=250)
-
-        self.model_value = ['SVM', 'Regression', 'MLPRegressor']
-        self.chosen_model_value = StringVar(self.window)
-        combo_model_value = OptionMenu(self.window, self.chosen_model_value, *self.model_value)
-        combo_model_value.place(x=120, y=380)
-
-        self.applied_pca = ['Yes', 'No']
-        self.chosen_applied_pca= StringVar(self.window)
-        combo_applied_pca = OptionMenu(self.window, self.chosen_applied_pca,
-                                *self.applied_pca)
-        combo_applied_pca.place(x=350, y=380)
-
-        self.apply = ImageTk.PhotoImage \
-            (file='images\\apply_button_red.png')
-        self.apply_button = Button(self.window, image=self.apply,
-                                        font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
-                                        , borderwidth=0, background="white", cursor="hand2", command=self.chosen_model)
-        self.apply_button.place(x=600, y=380)
-
-        self.explanation = ImageTk.PhotoImage \
-            (file='images\\explanation_button_red.png')
-        self.explanation_button = Button(self.window, image=self.explanation,
-                                   font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
-                                   , borderwidth=0, background="white", cursor="hand2", command=self.get_importance)
-        self.explanation_button.place(x=800, y=380)
 
     def isChecked(self):
         if self.cb.get() == 1:
@@ -185,45 +169,12 @@ class ExtractionDashboard(UserDashboard, RunModel):
         else:
             messagebox.showerror('PythonGuides', 'Something went wrong!')
 
-    def chosen_model(self):
-        label = self.label.get()
-
-        model = self.chosen_model_value.get()
-        pca = self.chosen_applied_pca.get()
-        file_name = self.chosen_file.get()
-        file_url = FOLDER_URL + '\\' + file_name
-        read_file = self.read_single_file(file_url)
-
-        if self.cb.get() == 1:
-            deeper_label = self.inFileTxt.get()
-            features, chosen_label = self.feature_deeper_label(read_file, label, deeper_label)
-        else:
-            features, chosen_label = self.feature_label(read_file, label)
-
-        if pca == 'Yes':
-            if model == 'SVM':
-                self.pca_svm(features, chosen_label)
-            elif model == 'Regression':
-                self.pca_regression(features, chosen_label)
-            elif model == 'MLPRegressor':
-                pass
-        else:
-            if model == 'SVM':
-                #todo this is not supported
-                self.training_type, X_train = self.svm(features,chosen_label)
-            elif model == 'Regression':
-                self.training_type, self.X_train = self.regression(features, chosen_label)
-            elif model == 'MLPRegressor':
-                self.MLPRegression(features, chosen_label)
-
-
-
-    def get_importance(self):
-        self.importance_plot(self.training_type, self.X_train)
-
-
     def click_add(self):
-        pass
+        win = Toplevel()
+        from New_Interface.Frontend import user_dashboard
+        user_dashboard.UserDashboard(win).set_feature_button()
+        self.window.withdraw()
+        win.deiconify()
 
 
 
