@@ -19,7 +19,13 @@ FOLDER_URL = r'C:\Users\marci\OneDrive\Other\Desktop\Shared\Tool_Interface\New_I
 class ModelDashboard(UserDashboard, RunModel):
     def __init__(self, window):
         self.window = window
-        self.window.title("Concatenate Model Dashboard")
+        windowWidth = self.window.winfo_reqwidth()
+        windowHeight = self.window.winfo_reqheight()
+        positionRight = int(self.window.winfo_screenwidth() / 6 - windowWidth / 2)
+        positionDown = int(self.window.winfo_screenheight() / 5 - windowHeight / 2)
+        self.window.geometry("+{}+{}".format(positionRight, positionDown))
+        self.window.title("Dashboard")
+        self.window.resizable(False, False)
         self.admin_dashboard_frame = ImageTk.PhotoImage \
             (file='images\\user_frame.png')
         self.image_panel = Label(self.window, image=self.admin_dashboard_frame)

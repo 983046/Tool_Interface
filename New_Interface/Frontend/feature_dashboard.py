@@ -18,25 +18,17 @@ FOLDER_URL = r'C:\Users\marci\OneDrive\Other\Desktop\Shared\Tool_Interface\New_I
 class FeatureDashboard(UserDashboard):
     def __init__(self, window):
         self.window = window
-        self.window.title("Concatenate Data Dashboard")
+        windowWidth = self.window.winfo_reqwidth()
+        windowHeight = self.window.winfo_reqheight()
+        positionRight = int(self.window.winfo_screenwidth() / 6 - windowWidth / 2)
+        positionDown = int(self.window.winfo_screenheight() / 5 - windowHeight / 2)
+        self.window.geometry("+{}+{}".format(positionRight, positionDown))
+        self.window.title("Dashboard")
+        self.window.resizable(False, False)
         self.admin_dashboard_frame = ImageTk.PhotoImage \
             (file='images\\user_frame.png')
         self.image_panel = Label(self.window, image=self.admin_dashboard_frame)
         self.image_panel.pack(fill='both', expand='yes')
-
-        # ============================Welcome Dashboard==============================
-        self.txt = "Welcome to features"
-        self.heading = Label(self.window, text=self.txt, font=('yu gothic ui', 20, "bold"), bg="white",
-                             fg='black',
-                             relief=FLAT)
-        self.heading.place(x=570, y=43)
-
-        # ============================Date and time==============================
-        self.date_time_image = Label(self.window, bg="white")
-        self.date_time = Label(self.window)
-        self.date_time.place(x=80, y=45)
-        self.time_running()
-
         self.set_frame()
 
 
@@ -60,6 +52,7 @@ class FeatureDashboard(UserDashboard):
         scaled_df.to_csv(file_url)
 
     def apply_pressed(self):
+        self.model_button_red.configure(state="active")
         choice = self.chosen_na_value.get()
         file_name = self.chosen_file.get()
         file_url = FOLDER_URL + '\\' + file_name
@@ -107,33 +100,39 @@ class FeatureDashboard(UserDashboard):
 
         self.model_button_red.configure(state="active")
 
-
-
-
     def set_frame(self):
         add_frame = Frame(self.window)
-        add_frame.place(x=48, y=116)
+        add_frame.place(x=35, y=159)
+
+        self.feature_dashboard_frame = ImageTk.PhotoImage \
+            (file='images\\feature_frame.png')
+        self.feature_panel = Label(add_frame, image=self.feature_dashboard_frame, bg="white")
+        self.feature_panel.pack(fill='both', expand='yes')
 
         self.add = ImageTk.PhotoImage \
             (file='images\\add_button_red.png')
         self.add_button = Button(self.window, image=self.add,
                                  font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
                                  , borderwidth=0, background="white", cursor="hand2", command=self.click_add)
-        self.add_button.place(x=622, y=542)
+        self.add_button.place(x=22, y=24)
 
-        self.next_feature = ImageTk.PhotoImage \
+        self.feature = ImageTk.PhotoImage \
             (file='images\\feature_button_blue.png')
-        self.next_feature_button_blue = Button(self.window, image=self.next_feature,
+        self.feature_button_blue = Button(self.window, image=self.feature,
                                               font=("yu gothic ui", 13, "bold"), relief=FLAT,
                                               activebackground="white"
                                               , borderwidth=0, background="white", cursor="hand2",
                                               command=self.run_feature_frame)
-        self.next_feature_button_blue.place(x=477, y=583)
+        self.feature_button_blue.place(x=150, y=24)
 
-        self.feature_dashboard_frame = ImageTk.PhotoImage \
-            (file='images\\feature_frame.png')
-        self.feature_panel = Label(add_frame, image=self.feature_dashboard_frame, bg="white")
-        self.feature_panel.pack(fill='both', expand='yes')
+        self.model = ImageTk.PhotoImage \
+            (file='images\\model_button_red.png')
+        self.model_button_red = Button(self.window, image=self.model,
+                                        font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                        activebackground="white"
+                                        , borderwidth=0, background="white", cursor="hand2",command=self.run_model_frame)
+        self.model_button_red.configure(state="disabled")
+        self.model_button_red.place(x=278, y=24)
 
 
         self.files = self.read_folder(FOLDER_URL)
@@ -141,20 +140,23 @@ class FeatureDashboard(UserDashboard):
             self.chosen_file = StringVar(self.window)
             comboLab = OptionMenu(self.window, self.chosen_file,
                                           *self.files)
-            comboLab.place(x=120, y=250)
+            comboLab.configure(width=11)
+            comboLab.place(x=123, y=280)
 
         self.na_values = ['Mean', 'Zero', 'One', 'Nothing']
         if len(self.na_values) != 0:
             self.chosen_na_value = StringVar(self.window)
             comboLab = OptionMenu(self.window, self.chosen_na_value,
                                           *self.na_values)
-            comboLab.place(x=407, y=250)
+            comboLab.configure(width=21)
+            comboLab.place(x=288, y=280)
 
         self.normalise = ['Normalizer', 'MinMaxScaler', 'StandardScaler', 'Nothing']
         self.chosen_normalise = StringVar(self.window)
         comboLab = OptionMenu(self.window, self.chosen_normalise,
                               *self.normalise)
-        comboLab.place(x=578, y=250)
+        comboLab.configure(width=31)
+        comboLab.place(x=513, y=280)
 
 
         self.apply = ImageTk.PhotoImage \
@@ -162,36 +164,22 @@ class FeatureDashboard(UserDashboard):
         self.apply_button = Button(self.window, image=self.apply,
                                         font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
                                         , borderwidth=0, background="white", cursor="hand2", command=self.apply_pressed)
-        self.apply_button.place(x=800, y=220)
-
+        self.apply_button.place(x=900, y=260)
 
         self.display_dataframe_image = ImageTk.PhotoImage \
-            (file='images\\edit_table_button_grey.png')
+            (file='images\\edit_table_button_red.png')
         self.display_dataframe_button = Button(self.window, image=self.display_dataframe_image,
                                         font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
                                         , borderwidth=0, background="white", cursor="hand2", command=self.display_dataframe)
-        self.display_dataframe_button.place(x=1000, y=220)
+        self.display_dataframe_button.configure(state="disabled")
+        self.display_dataframe_button.place(x=1100, y=260)
 
-        self.model = ImageTk.PhotoImage \
-            (file='images\\model_button_red.png')
-        self.model_button_red = Button(self.window, image=self.model,
-                                       font=("yu gothic ui", 13, "bold"), relief=FLAT,
-                                       activebackground="white"
-                                       , borderwidth=0, background="white", cursor="hand2",
-                                       command=self.run_model_frame)
-        self.model_button_red.configure(state="disabled")
-        self.model_button_red.place(x=796, y=583)
-
-        self.continue_button = ImageTk.PhotoImage \
-            (file='images\\continue_button_red.png')
-        self.click_continue_button = Button(self.window, image=self.continue_button,
-                                        font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
-                                        , borderwidth=0, background="white", cursor="hand2", command=self.continue_pressed)
-        self.click_continue_button.place(x=1000, y=300)
-
-    def continue_pressed(self):
-        self.model_button_red.configure(state="active")
-
+        self.selected_shape = ImageTk.PhotoImage \
+            (file='images\\selected_shape.png')
+        self.selected_shape_red = Button(self.window, image=self.selected_shape,
+                                             font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
+                                             , borderwidth=0, background="white", cursor="hand2")
+        self.selected_shape_red.place(x=188, y=120)
 
 
     def run_model_frame(self):
@@ -215,98 +203,11 @@ class FeatureDashboard(UserDashboard):
 
 
     def click_add(self):
-        add_frame = Frame(self.window)
-        add_frame.place(x=46, y=115)
-
-        self.add_dashboard_frame = ImageTk.PhotoImage \
-            (file='images\\add_frame.png')
-        self.add_panel = Label(add_frame, image=self.add_dashboard_frame, bg="white")
-        self.add_panel.pack(fill='both', expand='yes')
-
-        self.add = ImageTk.PhotoImage \
-            (file='images\\add_button_blue.png')
-        self.add_button = Button(self.window, image=self.add,
-                                 font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
-                                 , borderwidth=0, background="white", cursor="hand2", command=self.click_add)
-        self.add_button.place(x=622, y=542)
-
-        self.add_file = ImageTk.PhotoImage \
-            (file='images\\add_file_button_red.png')
-        self.add_file_button_red = Button(self.window, image=self.add_file,
-                                          font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
-                                          , borderwidth=0, background="white", cursor="hand2",
-                                          command=self.click_add_file)
-        self.add_file_button_red.place(x=200, y=225)
-
-        # self.yscroll = Scrollbar(self.window)
-        # self.yscroll.pack(side=RIGHT, fill=Y)
-
-        # self.file_values = self.read_folder(ADDED_FILES)
-        self.lb = Listbox(self.window, width=70, height=20, selectmode=MULTIPLE)
-        self.lb.place(x=472, y=160)
-
-        # self.yscroll = Scrollbar(command=self.lb.yview, orient=VERTICAL)
-        # self.yscroll.place(x=900, y=160)
-
-        self.remove_file = ImageTk.PhotoImage \
-            (file='images\\remove_file_button_red.png')
-        self.remove_file_button_red = Button(self.window, image=self.remove_file,
-                                             font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
-                                             , borderwidth=0, background="white", cursor="hand2",
-                                             command=self.click_remove_file)
-        self.remove_file_button_red.place(x=200, y=325)
-
-        self.combine_file = ImageTk.PhotoImage \
-            (file='images\\combine_file_button_red.png')
-        self.combine_file_button_red = Button(self.window, image=self.combine_file,
-                                              font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
-                                              , borderwidth=0, background="white", cursor="hand2",
-                                              command=self.click_combine_file)
-        self.combine_file_button_red.place(x=1000, y=225)
-
-        self.concatenate_file_user = ImageTk.PhotoImage \
-            (file='images\\concatenate_file_button_red.png')
-        self.concatenate_file_user_button_red = Button(self.window, image=self.concatenate_file_user,
-                                                       font=("yu gothic ui", 13, "bold"), relief=FLAT,
-                                                       activebackground="white"
-                                                       , borderwidth=0, background="white", cursor="hand2",
-                                                       command=self.click_concatenate_file_user)
-        self.concatenate_file_user_button_red.place(x=1000, y=325)
-
-        self.next_file = ImageTk.PhotoImage \
-            (file='images\\next_button_red.png')
-        self.next_file_button_red = Button(self.window, image=self.next_file,
-                                           font=("yu gothic ui", 13, "bold"), relief=FLAT,
-                                           activebackground="white"
-                                           , borderwidth=0, background="white", cursor="hand2",
-                                           command=self.click_next_file)
-        self.next_file_button_red.place(x=1000, y=425)
-
-        self.next_feature_button_blue.destroy()
-
-        self.next_feature = ImageTk.PhotoImage \
-            (file='images\\feature_button_red.png')
-        self.next_feature_button_red = Button(self.window, image=self.next_feature,
-                                               font=("yu gothic ui", 13, "bold"), relief=FLAT,
-                                               activebackground="white"
-                                               , borderwidth=0, background="white", cursor="hand2",
-                                               command=self.click_next_file)
-        self.next_feature_button_red.place(x=477, y=583)
-
-
-        if str(self.model_button_red['state']) == 'active':
-            self.model_button_red.configure(state="active")
-        else:
-            self.model_button_red.configure(state="disabled")
-
-
-        # self.model = ImageTk.PhotoImage \
-        #     (file='images\\model_button_red.png')
-        # self.model_button_red = Button(self.window, image=self.model,
-        #                                 font=("yu gothic ui", 13, "bold"), relief=FLAT,
-        #                                 activebackground="white"
-        #                                 , borderwidth=0, background="white", cursor="hand2", command=self.run_model_frame)
-        # self.model_button_red.place(x=796, y=583)
+        win = Toplevel()
+        from New_Interface.Frontend import user_dashboard
+        user_dashboard.UserDashboard(win).set_feature_button()
+        self.window.withdraw()
+        win.deiconify()
 
 
 def win():
@@ -321,6 +222,7 @@ if __name__ == '__main__':
     win()
 
 
+#todo delete null values
 
 # def chnageDs(dataset,listType):
 #     droped = 0
