@@ -129,43 +129,43 @@ class ExtractionDashboard(UserDashboard, RunModel):
         read_file = self.read_single_file(file_url)
         file_columns = read_file.columns
         if len(file_columns) != 0:
-            self.label = StringVar(self.window)
-            self.combo_label = OptionMenu(self.window, self.label, *file_columns)
+            self.extraction_dashboard_label = StringVar(self.window)
+            self.combo_label = OptionMenu(self.window, self.extraction_dashboard_label, *file_columns)
             self.combo_label.configure(width=21)
             self.combo_label.place(x=307, y=443)
         self.combo_chosen_file.configure(state="disabled")
 
-        self.cb = IntVar()
-        checkbox = Checkbutton(self.window, text="Deeper label?", variable=self.cb, onvalue=1, offvalue=0, command=self.isChecked)
+        self.extraction_dashboard_cb = IntVar()
+        checkbox = Checkbutton(self.window, text="Deeper label?", variable=self.extraction_dashboard_cb, onvalue=1, offvalue=0, command=self.isChecked)
         checkbox.place(x=578, y=445)
 
         self.specific_value = StringVar()
-        self.inFileTxt = Entry(self.window, textvariable=self.specific_value)
-        self.inFileTxt.configure(state="disabled",width='27')
-        self.inFileTxt.place(x=705, y=448)
+        self.extraction_dashboard_inFileTxt = Entry(self.window, textvariable=self.specific_value)
+        self.extraction_dashboard_inFileTxt.configure(state="disabled", width='27')
+        self.extraction_dashboard_inFileTxt.place(x=705, y=448)
 
         self.next_frame_button_red.configure(state="active")
 
     def pressed_model_frame(self):
-        label = self.label.get()
+        label = self.extraction_dashboard_label.get()
         if label == '':
-            messagebox.showinfo("Label not selected", "Need to select a label")
+            messagebox.showinfo("Label not selected", "Need to select a extraction_dashboard_label")
         else:
-            self.model_button_red.configure("activate")
+            self.model_button_red.configure(state="active")
 
 
     def run_model_frame(self):
         win = Toplevel()
         from New_Interface.Frontend import model_dashboard
-        model_dashboard.ModelDashboard(win)
+        model_dashboard.ModelDashboard(win,self.extraction_dashboard_label.get(), self.extraction_dashboard_inFileTxt.get(),self.chosen_file.get(), self.extraction_dashboard_cb.get())
         self.window.withdraw()
         win.deiconify()
 
     def isChecked(self):
-        if self.cb.get() == 1:
-            self.inFileTxt.configure(state="normal")
-        elif self.cb.get() == 0:
-            self.inFileTxt.configure(state="disabled")
+        if self.extraction_dashboard_cb.get() == 1:
+            self.extraction_dashboard_inFileTxt.configure(state="normal")
+        elif self.extraction_dashboard_cb.get() == 0:
+            self.extraction_dashboard_inFileTxt.configure(state="disabled")
         else:
             messagebox.showerror('PythonGuides', 'Something went wrong!')
 

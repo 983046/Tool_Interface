@@ -15,6 +15,7 @@ import numpy as np
 from New_Interface.Frontend.user_dashboard import UserDashboard
 FOLDER_URL = r'C:\Users\marci\OneDrive\Other\Desktop\Shared\Tool_Interface\New_Interface\Frontend\joined_files'
 
+
 class FeatureDashboard(UserDashboard):
     def __init__(self, window):
         self.window = window
@@ -32,24 +33,25 @@ class FeatureDashboard(UserDashboard):
         self.set_frame()
 
 
-    def apply_norm(self, dataset,file_url):
-        #todo Add this into run_model.py instead.
-        method = self.chosen_normalise.get()
 
-        names = dataset.columns
-        if method == 'Normalizer':
-            scaler = preprocessing.Normalizer()
-        elif method == 'MinMaxScaler':
-            scaler = preprocessing.MinMaxScaler()
-        elif method == 'StandardScaler':
-            scaler = preprocessing.StandardScaler()
-        else:
-            return
-
-        d = scaler.fit(dataset)
-        scaled_np = d.transform(dataset)
-        scaled_df = pd.DataFrame(scaled_np, columns=names)
-        scaled_df.to_csv(file_url)
+    # def apply_norm(self, dataset,file_url):
+    #     #todo Add this into run_model.py instead.
+    #     method = self.chosen_normalise.get()
+    #
+    #     names = dataset.columns
+    #     if method == 'Normalizer':
+    #         scaler = preprocessing.Normalizer()
+    #     elif method == 'MinMaxScaler':
+    #         scaler = preprocessing.MinMaxScaler()
+    #     elif method == 'StandardScaler':
+    #         scaler = preprocessing.StandardScaler()
+    #     else:
+    #         return
+    #
+    #     d = scaler.fit(dataset)
+    #     scaled_np = d.transform(dataset)
+    #     scaled_df = pd.DataFrame(scaled_np, columns=names)
+    #     scaled_df.to_csv(file_url)
 
     def apply_pressed(self):
         self.extract_button_red.configure(state="active")
@@ -81,7 +83,7 @@ class FeatureDashboard(UserDashboard):
         elif choice == 'Nothing':
             None
 
-        self.apply_norm(read_file,file_url)
+        #self.apply_norm(read_file,file_url)
 
         self.display_dataframe_button.configure(state="active")
 

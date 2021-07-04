@@ -171,7 +171,7 @@ def concatenate(features, labels):
     data = pd.DataFrame(data)
 
     features_columns = features.columns
-    features_labels = np.append(features_columns, 'label')
+    features_labels = np.append(features_columns, 'extraction_dashboard_label')
 
     data.columns = features_labels
 
@@ -397,7 +397,7 @@ def save_training(
     :param training_type: Training
     :param info: String explaining which button was pressed
     :param X_test: Test data
-    :param y_test: Test label data
+    :param y_test: Test extraction_dashboard_label data
     """
 
     partition_laboratory = laboratory  # .partition('.')[0]
@@ -503,8 +503,8 @@ def run_svm(
     Performs support vector machine.
     :param X_train: Training data
     :param X_test: Testing data
-    :param y_train: Training label
-    :param y_test: Testing label
+    :param y_train: Training extraction_dashboard_label
+    :param y_test: Testing extraction_dashboard_label
     :param laboratory: Laboratory data
     :param demographic: Demographic data
     :param demographic_bool: Either to include demographic data or not
@@ -1289,8 +1289,8 @@ def perform_feature_selection(X_train, X_test, y_train, y_test):
     Method to perform feature selection using gradient booster.
     :param X_train: Training data
     :param X_test: Testing data
-    :param y_train: Training label
-    :param y_test: Testing label
+    :param y_train: Training extraction_dashboard_label
+    :param y_test: Testing extraction_dashboard_label
     """
 
     imputer.fit(X_train)
@@ -2879,8 +2879,8 @@ def run_svm_part_two(
     Performs support vector machine.
     :param X_train: Training data
     :param X_test: Testing data
-    :param y_train: Training label
-    :param y_test: Testing label
+    :param y_train: Training extraction_dashboard_label
+    :param y_test: Testing extraction_dashboard_label
     :param laboratory: Laboratory data
     :param demographic: Demographic data
     :param demographic_bool: Either to include demographic data or not

@@ -36,8 +36,8 @@ class RunModel:
         print(labels)
         return features, labels
 
-    def apply_pca(self, data):
-        pca_data = PCA(n_components=2)
+    def apply_pca(self, data,n_elements_model):
+        pca_data = PCA(n_components=n_elements_model)
         principal_components_data = pca_data.fit_transform(data)
         return principal_components_data
 
@@ -158,7 +158,7 @@ class RunModel:
         data = pd.DataFrame(data)
 
         features_columns = features.columns
-        features_labels = np.append(features_columns, 'label')
+        features_labels = np.append(features_columns, 'extraction_dashboard_label')
 
         data.columns = features_labels
 
@@ -179,14 +179,16 @@ class RunModel:
         Feature_named_column = pd.DataFrame(data, columns=feat_cols)
         return (data, Feature_named_column)
 
-    def pca_svm(self, features, label):
+
+
+    def pca_svm(self, features, label, n_elements_model):
         concatenate_data_labels, features_columns = self.concatenate(features,
                                                                      label)
         # PCA
         x_data, feature_named_column = \
             self.normalization(concatenate_data_labels, features_columns)
 
-        principal_components_data = self.apply_pca(x_data)
+        principal_components_data = self.apply_pca(x_data,n_elements_model)
         features = self.covert_to_dataframe(principal_components_data)
         # todo Hassan do you think we need scale
         # features = self.scale(features)
@@ -214,14 +216,14 @@ class RunModel:
         # Print
         self.two_dim_graph_train(X_train, y_train, training_type, number_of_col)
 
-    def pca_regression(self, features, label):
+    def pca_regression(self, features, label,n_elements_model):
         concatenate_data_labels, features_columns = self.concatenate(features,
                                                                      label)
         # PCA
         x_data, feature_named_column = \
             self.normalization(concatenate_data_labels, features_columns)
 
-        principal_components_data = self.apply_pca(x_data)
+        principal_components_data = self.apply_pca(x_data,n_elements_model)
         features = self.covert_to_dataframe(principal_components_data)
         # todo Hassan do you think we need scale
         # features = self.scale(features)
@@ -321,6 +323,16 @@ class RunModel:
         shap.summary_plot(shap_values[0], X_train, plot_type='dot')
         shap.summary_plot(shap_values, X_train, plot_type='bar')
         # self.shap_plot(0, training_type, X_train)
+
+    def shap_dot_plot(self, training_type, X_train):
+        expShap = shap.TreeExplainer(training_type)
+        shap_values = expShap.shap_values(X_train)
+        shap.summary_plot(shap_values[0], X_train, plot_type='dot')
+
+    def shap_bar_plot(self, training_type, X_train):
+        expShap = shap.TreeExplainer(training_type)
+        shap_values = expShap.shap_values(X_train)
+        shap.summary_plot(shap_values, X_train, plot_type='bar')
 
     def shap_plot(self, j, training_type, X_train):
         explainerModel = shap.TreeExplainer(training_type)
