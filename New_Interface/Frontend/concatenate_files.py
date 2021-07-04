@@ -107,6 +107,7 @@ class ConcatenateFiles(UserDashboard):
                                         font=("yu gothic ui", 13, "bold"), relief=FLAT,
                                         activebackground="white"
                                         , borderwidth=0, background="white", cursor="hand2")
+        self.extract_button_red.configure(state="disabled")
         self.extract_button_red.place(x=278, y=24)
 
     def click_concatenate_files(self):

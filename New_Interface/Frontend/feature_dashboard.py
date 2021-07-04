@@ -199,7 +199,7 @@ class FeatureDashboard(UserDashboard):
     def run_extract_frame(self):
         win = Toplevel()
         from New_Interface.Frontend import extraction_dashboard
-        extraction_dashboard.ExtractionDashboard(win)
+        extraction_dashboard.ExtractionDashboard(win, self.chosen_normalise.get())
         self.window.withdraw()
         win.deiconify()
 

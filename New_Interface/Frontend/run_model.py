@@ -8,11 +8,16 @@ from matplotlib.colors import ListedColormap
 from sklearn import tree
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.impute import SimpleImputer
 from sklearn.metrics import accuracy_score, recall_score, confusion_matrix
 from sklearn.model_selection import *
 from sklearn.neural_network import MLPClassifier
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, Normalizer
 from sklearn.svm import SVC
+imputer = SimpleImputer(strategy='median')
+from sklearn.ensemble import GradientBoostingRegressor
+import lime
+import lime.lime_tabular
 
 
 class RunModel:
@@ -65,9 +70,8 @@ class RunModel:
         # todo split them.
         return X_train, X_test, y_train, y_test
 
-    def run_svm(self, X_train, X_test, y_train):
-        # todo I dont need these?
-        normaliser = StandardScaler()
+    def run_svm(self, X_train, X_test, y_train,chosen_normalise):
+        normaliser = self.normilzation_type(chosen_normalise)
         normaliser.fit(X_train)
         X_train = normaliser.transform(X_train)
         X_test = normaliser.transform(X_test)
@@ -77,12 +81,7 @@ class RunModel:
                                                                y_train)
         return (X_test, training_type, X_train)
 
-    def two_dim_graph_train(self,
-                            X,
-                            y,
-                            training_type,
-                            number_of_columns,
-                            ):
+    def two_dim_graph_train(self,X,y,training_type,number_of_columns):
         """
         Shows the graph of passed in data and labels.
         :param X: Data
@@ -164,29 +163,36 @@ class RunModel:
 
         return (data, features_columns)
 
-    def normalization(self, concatenate_data_labels, features_columns):
+    def normilzation_type(self, chosen_normalise):
+        if chosen_normalise == 'Normalizer':
+            return Normalizer()
+        elif chosen_normalise == 'MinMaxScaler':
+            return MinMaxScaler()
+        elif chosen_normalise == 'StandardScaler':
+            return StandardScaler()
+        else:
+            return StandardScaler()
+
+    def normalization(self, concatenate_data_labels, features_columns,chosen_normalise):
         """
         Makes all the values to be between 0 to 1 for rows.
         :param concatenate_data_labels: Joined data and labels
         :param features_columns: Columns of features
         :return: Normalized data, feature columns
         """
-
         data = concatenate_data_labels.loc[:, features_columns].values
-        normalizer = StandardScaler()
+        normalizer = self.normilzation_type(chosen_normalise)
         data = normalizer.fit_transform(data)
         feat_cols = ['feature' + str(i) for i in range(data.shape[1])]
         Feature_named_column = pd.DataFrame(data, columns=feat_cols)
         return (data, Feature_named_column)
 
-
-
-    def pca_svm(self, features, label, n_elements_model):
+    def pca_svm(self, features, label, n_elements_model,chosen_normalise):
         concatenate_data_labels, features_columns = self.concatenate(features,
                                                                      label)
         # PCA
         x_data, feature_named_column = \
-            self.normalization(concatenate_data_labels, features_columns)
+            self.normalization(concatenate_data_labels, features_columns,chosen_normalise)
 
         principal_components_data = self.apply_pca(x_data,n_elements_model)
         features = self.covert_to_dataframe(principal_components_data)
@@ -195,7 +201,7 @@ class RunModel:
 
         X_train, X_test, y_train, y_test = self.smote(features, label)
 
-        X_test, training_type, X_train = self.run_svm(X_train, X_test, y_train)
+        X_test, training_type, X_train = self.run_svm(X_train, X_test, y_train,chosen_normalise)
 
         scores = cross_val_predict(training_type, X_test, y_test, cv=10)
 
@@ -216,12 +222,12 @@ class RunModel:
         # Print
         self.two_dim_graph_train(X_train, y_train, training_type, number_of_col)
 
-    def pca_regression(self, features, label,n_elements_model):
+    def pca_regression(self, features, label,n_elements_model,chosen_normalise):
         concatenate_data_labels, features_columns = self.concatenate(features,
                                                                      label)
         # PCA
         x_data, feature_named_column = \
-            self.normalization(concatenate_data_labels, features_columns)
+            self.normalization(concatenate_data_labels, features_columns,chosen_normalise)
 
         principal_components_data = self.apply_pca(x_data,n_elements_model)
         features = self.covert_to_dataframe(principal_components_data)
@@ -256,10 +262,11 @@ class RunModel:
         plt.show()
         plt.close()
 
-    def svm(self, features, label):
+    def svm(self, features, label,chosen_normalise):
+
         # SMOTE
         X_train, X_test, y_train, y_test = self.smote(features, label)
-        X_test, training_type, X_train = self.run_svm(X_train, X_test, y_train)
+        X_test, training_type, X_train = self.run_svm(X_train, X_test, y_train,chosen_normalise)
 
         scores = cross_val_predict(training_type, X_test, y_test, cv=10)
 
@@ -285,8 +292,13 @@ class RunModel:
 
         return training_type, X_train
 
-    def regression(self, features, labels):
-        x = self.scale(features)
+    def regression(self, features, labels,chosen_normalise):
+        #x = self.scale(features)
+        concatenate_data_labels, features_columns = self.concatenate(features,
+                                                                     labels)
+        x, feature_named_column = \
+            self.normalization(concatenate_data_labels, features_columns, chosen_normalise)
+
         X_train, X_test, y_train, y_test = self.smote(x, labels)
 
         training_type = RandomForestClassifier(random_state=42)
@@ -339,10 +351,18 @@ class RunModel:
         shap_values_Model = explainerModel.shap_values(X_train)
         # shap.force_plot(explainerModel.expected_value[j], shap_values_Model[j])
 
-    def MLPRegression(self, features, labels):
+    def MLPRegression(self, features, labels,chosen_normalise):
         max_iter = 1000
         hidden_layer_sizes = 15
-        features = self.scale(features)
+        concatenate_data_labels, features_columns = self.concatenate(features,
+                                                                     labels)
+        features, feature_named_column = \
+            self.normalization(concatenate_data_labels, features_columns, chosen_normalise)
+
+
+
+        #features = self.scale(features)
+
         X_train, X_test, y_train, y_test = self.smote(features, labels)
 
         clf = MLPClassifier(solver='lbfgs', alpha=1e-5, max_iter=max_iter,
@@ -350,3 +370,96 @@ class RunModel:
         clf.fit(X_train, y_train)
         y_pred = clf.predict(X_test)
         print(clf.score(X_test, y_pred))
+
+        return clf, X_train
+
+    def gradient_boosting_regression(self,features, labels):
+        X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2,
+                                                            random_state=42)
+        self.perform_feature_selection(X_train, X_test, y_train, y_test)
+
+    def perform_feature_selection(self,X_train, X_test, y_train, y_test):
+        """
+        Method to perform feature selection using gradient booster.
+        :param X_train: Training data
+        :param X_test: Testing data
+        :param y_train: Training extraction_dashboard_label
+        :param y_test: Testing extraction_dashboard_label
+        """
+
+        imputer.fit(X_train)
+        # Transform both training data and testing data
+        transformed_X = imputer.transform(X_train)
+        transformed_X_test = imputer.transform(X_test)
+        transformed_y = np.array(y_train).reshape((-1,))
+        transformed_y_test = np.array(y_test).reshape((-1,))
+
+        model = GradientBoostingRegressor(loss='lad',
+                                          max_depth=5,
+                                          max_features=None,
+                                          min_samples_leaf=2,
+                                          min_samples_split=6,
+                                          n_estimators=350,
+                                          random_state=42)
+
+        model.fit(transformed_X, transformed_y)
+
+        X = pd.DataFrame(X_train)
+        # Extract the feature importance into a dataframe
+        important_feature = pd.DataFrame({'feature': list(X.columns),
+                                          'importance': model.feature_importances_})
+
+        # Show the top 10 most important
+        important_feature = important_feature.sort_values('importance', ascending=False) \
+            .reset_index(drop=True)
+
+        important_feature.loc[:9, :].plot(x='feature', y='importance',
+                                          edgecolor='k',
+                                          kind='barh', color='blue')
+        plt.xlabel('Relative Importance')
+        plt.ylabel('')
+        plt.title('Feature Importances from Random Forest')
+        plt.tight_layout()
+        plt.show()
+        plt.close()
+
+        # Extract the names of the most important features
+        most_important_features = important_feature['feature'][:10]
+        index_of_features = [list(X.columns).index(x) for x in most_important_features]
+        kept_important_features_X = transformed_X[:, index_of_features]
+        kept_important_features_X_test = transformed_X_test[:, index_of_features]
+
+        # Create the model with the same hyperparamters
+        model_reduced = GradientBoostingRegressor(loss='lad',
+                                                  max_depth=5,
+                                                  max_features=None,
+                                                  min_samples_leaf=2,
+                                                  min_samples_split=6,
+                                                  n_estimators=350,
+                                                  random_state=42)
+
+        # Fit and test on the reduced set of features
+        model_reduced.fit(kept_important_features_X, transformed_y)
+        model_reduced_pred = model_reduced.predict(kept_important_features_X_test)
+
+        # Find the residuals
+        residuals = abs(model_reduced_pred - transformed_y_test)
+
+        # Exact the worst and best prediction
+        wrong = kept_important_features_X_test[np.argmax(residuals), :]
+
+        explainer = lime.lime_tabular.LimeTabularExplainer(training_data=kept_important_features_X,
+                                                           mode='regression',
+                                                           training_labels=transformed_y,
+                                                           feature_names=list(most_important_features))
+
+        explanation_for_wrong = explainer.explain_instance(data_row=wrong,
+                                                           predict_fn=model_reduced.predict)
+
+        # Plot the prediction explaination
+        explanation_for_wrong.as_pyplot_figure()
+        plt.title('Explanation of Prediction')
+        plt.xlabel('Effect on Prediction')
+        plt.tight_layout()
+        plt.show()
+        plt.close()

@@ -134,7 +134,7 @@ class UserDashboard:
                                            font=("yu gothic ui", 13, "bold"), relief=FLAT,
                                            activebackground="white"
                                            , borderwidth=0, background="white", cursor="hand2", command=self.click_next_file)
-        self.next_file_button_red.configure(state="disabled")
+        # self.next_file_button_red.configure(state="disabled")
         self.next_file_button_red.place(x=1100, y=600)
 
         self.feature = ImageTk.PhotoImage \

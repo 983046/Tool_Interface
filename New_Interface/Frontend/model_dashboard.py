@@ -19,7 +19,7 @@ from New_Interface.Frontend.feature_dashboard import FeatureDashboard
 FOLDER_URL = r'C:\Users\marci\OneDrive\Other\Desktop\Shared\Tool_Interface\New_Interface\Frontend\joined_files'
 
 class ModelDashboard(RunModel, FeatureDashboard):
-    def __init__(self, window, label, deeper_label,file_name, ticked_deeper):
+    def __init__(self, window, label, deeper_label,file_name, ticked_deeper,chosen_normalise):
         self.window = window
         windowWidth = self.window.winfo_reqwidth()
         windowHeight = self.window.winfo_reqheight()
@@ -36,6 +36,7 @@ class ModelDashboard(RunModel, FeatureDashboard):
         self.deeper_label = deeper_label
         self.ticked_deeper = ticked_deeper
         self.file_name = file_name
+        self.chosen_normalise = chosen_normalise
         self.set_frame()
 
     def set_frame(self):
@@ -56,6 +57,15 @@ class ModelDashboard(RunModel, FeatureDashboard):
                                           command=self.run_feature_frame)
         self.feature_button_blue.place(x=150, y=24)
 
+
+        self.model = ImageTk.PhotoImage \
+            (file='images\\model_button_blue.png')
+        self.model_button_red = Button(self.window, image=self.model,
+                                        font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                        activebackground="white"
+                                        , borderwidth=0, background="white", cursor="hand2", command=self.run_model_frame)
+        self.model_button_red.place(x=410, y=24)
+
         self.add = ImageTk.PhotoImage \
             (file='images\\add_button_red.png')
         self.add_button = Button(self.window, image=self.add,
@@ -71,18 +81,6 @@ class ModelDashboard(RunModel, FeatureDashboard):
                                          , borderwidth=0, background="white", cursor="hand2",
                                          command=self.run_extraction_frame)
         self.extract_button_red.place(x=278, y=24)
-
-
-
-        self.model = ImageTk.PhotoImage \
-            (file='images\\model_button_blue.png')
-        self.model_button_red = Button(self.window, image=self.model,
-                                        font=("yu gothic ui", 13, "bold"), relief=FLAT,
-                                        activebackground="white"
-                                        , borderwidth=0, background="white", cursor="hand2", command=self.run_model_frame)
-        self.model_button_red.place(x=410, y=24)
-
-
 
         self.model_value = ['SVM', 'Regression', 'MLPRegressor', 'Nothing']
         self.chosen_model_value = StringVar(self.window)
@@ -114,6 +112,7 @@ class ModelDashboard(RunModel, FeatureDashboard):
                                          font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
                                          , borderwidth=0, background="white", cursor="hand2",
                                          command=self.get_importance)
+        self.explanation_button.configure(state='disabled')
         self.explanation_button.place(x=1100, y=443)
 
 
@@ -130,6 +129,14 @@ class ModelDashboard(RunModel, FeatureDashboard):
                                          , borderwidth=0, background="white", cursor="hand2")
         self.selected_shape_red.place(x=445, y=120)
 
+        self.gbr = ImageTk.PhotoImage \
+            (file='images\\gbr_button_red.png')
+        self.gbr_button = Button(self.window, image=self.gbr,
+                                         font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
+                                         , borderwidth=0, background="white", cursor="hand2",
+                                         command=self.run_gbr)
+        self.gbr_button.configure(state='disabled')
+        self.gbr_button.place(x=800, y=443)
 
 
 
@@ -143,14 +150,14 @@ class ModelDashboard(RunModel, FeatureDashboard):
     def run_extraction_frame(self):
         win = Toplevel()
         from New_Interface.Frontend import extraction_dashboard
-        extraction_dashboard.ExtractionDashboard(win)
+        extraction_dashboard.ExtractionDashboard(win,self.chosen_normalise)
         self.window.withdraw()
         win.deiconify()
 
     def run_model_frame(self):
         win = Toplevel()
         from New_Interface.Frontend import model_dashboard
-        model_dashboard.ModelDashboard(win,self.label, self.deeper_label,self.file_name, self.ticked_deeper)
+        model_dashboard.ModelDashboard(win,self.label, self.deeper_label,self.file_name, self.ticked_deeper,self.chosen_normalise)
         self.window.withdraw()
         win.deiconify()
 
@@ -169,37 +176,37 @@ class ModelDashboard(RunModel, FeatureDashboard):
         self.model_ran = False
 
         if self.ticked_deeper == 1:
-            features, chosen_label = self.feature_deeper_label(read_file, self.label, self.deeper_label)
+            self.features, self.chosen_label = self.feature_deeper_label(read_file, self.label, self.deeper_label)
         else:
-            features, chosen_label = self.feature_label(read_file, self.label)
+            self.features, self.chosen_label = self.feature_label(read_file, self.label)
 
         if self.cb.get() == 1:
             try:
-                integer_result = int(self.n_elements_model.get())
+                integer_result = int(self.specific_value.get())
                 if self.model == 'SVM':
-                    self.pca_svm(features, chosen_label, integer_result)
-                    self.explanation_value = [ 'Nothing']
+                    self.training_type, X_train = self.pca_svm(self.features, self.chosen_label, integer_result,self.chosen_normalise)
+                    self.explanation_value = ['gradient boosting regression', 'Nothing']
                 elif self.model == 'Regression':
-                    self.pca_regression(features, chosen_label, integer_result)
-                    self.explanation_value = ['Shap Dot Plot', 'Shap Bar Plot', 'Nothing']
+                    self.training_type, X_train = self.pca_regression(self.features, self.chosen_label, integer_result,self.chosen_normalise)
+                    self.explanation_value = ['gradient boosting regression', 'Shap Dot Plot', 'Shap Bar Plot', 'Nothing']
                 elif self.model == 'MLPRegressor':
                     self.explanation_value = [ 'Nothing']
             except ValueError:
                 messagebox.showerror('Components', 'Number of components need to be a number!')
         else:
             if self.model == 'SVM':
-                self.explanation_value = [ 'Nothing']
-                self.training_type, X_train = self.svm(features, chosen_label)
+                self.explanation_value = ['Nothing']
+                self.training_type, self.X_train = self.svm(self.features, self.chosen_label,self.chosen_normalise)
             elif self.model == 'Regression':
                 self.explanation_value = ['Shap Dot Plot', 'Shap Bar Plot', 'Nothing']
-                self.training_type, self.X_train = self.regression(features, chosen_label)
+                self.training_type, self.X_train = self.regression(self.features, self.chosen_label,self.chosen_normalise)
             elif self.model == 'MLPRegressor':
                 self.explanation_value = ['Shap Dot Plot', 'Shap Bar Plot', 'Nothing']
-                self.MLPRegression(features, chosen_label)
+                self.training_type, self.X_train = self.MLPRegression(self.features, self.chosen_label,self.chosen_normalise)
 
 
+        self.gbr_button.configure(state='normal')
         self.explanation_button.configure(state="normal")
-
         self.chosen_explanation_value = StringVar(self.window)
         self.combo_explanation_value = OptionMenu(self.window, self.chosen_explanation_value, *self.explanation_value)
         self.combo_explanation_value.configure(width=35)
@@ -215,6 +222,9 @@ class ModelDashboard(RunModel, FeatureDashboard):
             self.shap_dot_plot(self.training_type, self.X_train)
         elif explanation_type == 'Shap Bar Plot':
             self.shap_bar_plot(self.training_type, self.X_train)
+
+    def run_gbr(self):
+        self.gradient_boosting_regression(self.features, self.chosen_label)
 
 
 

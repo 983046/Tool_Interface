@@ -17,7 +17,7 @@ from New_Interface.Frontend.user_dashboard import UserDashboard
 FOLDER_URL = r'C:\Users\marci\OneDrive\Other\Desktop\Shared\Tool_Interface\New_Interface\Frontend\joined_files'
 
 class ExtractionDashboard(UserDashboard, RunModel):
-    def __init__(self, window):
+    def __init__(self, window,chosen_normalise):
         self.window = window
         windowWidth = self.window.winfo_reqwidth()
         windowHeight = self.window.winfo_reqheight()
@@ -30,7 +30,7 @@ class ExtractionDashboard(UserDashboard, RunModel):
             (file='images\\user_frame.png')
         self.image_panel = Label(self.window, image=self.admin_dashboard_frame)
         self.image_panel.pack(fill='both', expand='yes')
-
+        self.chosen_normalise = chosen_normalise
         self.set_frame()
 
     def set_frame(self):
@@ -111,7 +111,7 @@ class ExtractionDashboard(UserDashboard, RunModel):
     def run_extraction_frame(self):
         win = Toplevel()
         from New_Interface.Frontend import extraction_dashboard
-        extraction_dashboard.ExtractionDashboard(win)
+        extraction_dashboard.ExtractionDashboard(win,self.chosen_normalise)
         self.window.withdraw()
         win.deiconify()
 
@@ -157,7 +157,7 @@ class ExtractionDashboard(UserDashboard, RunModel):
     def run_model_frame(self):
         win = Toplevel()
         from New_Interface.Frontend import model_dashboard
-        model_dashboard.ModelDashboard(win,self.extraction_dashboard_label.get(), self.extraction_dashboard_inFileTxt.get(),self.chosen_file.get(), self.extraction_dashboard_cb.get())
+        model_dashboard.ModelDashboard(win,self.extraction_dashboard_label.get(), self.extraction_dashboard_inFileTxt.get(),self.chosen_file.get(), self.extraction_dashboard_cb.get(),self.chosen_normalise)
         self.window.withdraw()
         win.deiconify()
 
