@@ -14,7 +14,9 @@ import pandas as pd
 file_path = []
 SAVED_FILE_URL = r'C:\Users\marci\OneDrive\Other\Desktop\Shared\Tool_Interface\New_Interface\Frontend\joined_files'
 
+
 class UserDashboard:
+
     def __init__(self, window):
         self.window = window
         windowWidth = self.window.winfo_reqwidth()
@@ -24,11 +26,30 @@ class UserDashboard:
         self.window.geometry("+{}+{}".format(positionRight, positionDown))
         self.window.title("Dashboard")
         self.window.resizable(False, False)
-        self.admin_dashboard_frame = ImageTk.PhotoImage \
-            (file='images\\user_frame.png')
-        self.image_panel = Label(self.window, image=self.admin_dashboard_frame)
+        self.admin_dashboard_frame_white = PhotoImage(file='images\\user_frame.png')
+        self.admin_dashboard_frame_black = PhotoImage(file='images\\black_user_frame.png')
+        self.image_panel = Label(self.window, image=self.admin_dashboard_frame_white)
         self.image_panel.pack(fill='both', expand='yes')
+        self.on = PhotoImage(file="images\\on.png")
+        self.off = PhotoImage(file="images\\off.png")
         self.set_frame()
+
+    #     #Switch
+    #     self.on_button = Button(self.window, image=self.on, bd=0,
+    #                        command=self.switch)
+    #     self.on_button.place(x=1000, y=40)
+    #
+    #
+    #
+    #
+    # def switch(self, tog=[0]):
+    #     tog[0] = not tog[0]
+    #     if tog[0]:
+    #         self.on_button.config(image=self.off, background='black')
+    #         self.image_panel.configure(image=self.admin_dashboard_frame_black)
+    #     else:
+    #         self.on_button.config(image=self.on, background='white')
+    #         self.image_panel.configure(image=self.admin_dashboard_frame_white)
 
     def click_next_file(self):
         self.feature_button_red.configure(state="active")
@@ -41,8 +62,6 @@ class UserDashboard:
                 self.listbox_object = self.get_selection()
                 file = self.read_selected_files()
                 df = pd.DataFrame(file[0], columns=file[0].columns)
-
-
                 df.to_csv(file_url)
                 messagebox.showinfo("File name", "File saved as: \n {}".format(user_input))
             else:
@@ -55,10 +74,9 @@ class UserDashboard:
         self.window.withdraw()
         win.deiconify()
 
-
     def set_frame(self):
         add_frame = Frame(self.window)
-        add_frame.place(x=35, y=159)
+        add_frame.place(x=85, y=159)
 
         self.add_dashboard_frame = ImageTk.PhotoImage \
             (file='images\\add_frame.png')
@@ -75,9 +93,9 @@ class UserDashboard:
         self.extract = ImageTk.PhotoImage \
             (file='images\\extract_button_red.png')
         self.extract_button_red = Button(self.window, image=self.extract,
-                                        font=("yu gothic ui", 13, "bold"), relief=FLAT,
-                                        activebackground="white"
-                                        , borderwidth=0, background="white", cursor="hand2")
+                                         font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                         activebackground="white"
+                                         , borderwidth=0, background="white", cursor="hand2")
         self.extract_button_red.configure(state="disabled")
         self.extract_button_red.place(x=278, y=24)
 
@@ -96,10 +114,10 @@ class UserDashboard:
                                           font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
                                           , borderwidth=0, background="white", cursor="hand2",
                                           command=self.click_add_file)
-        self.add_file_button_red.place(x=110, y=320)
+        self.add_file_button_red.place(x=160, y=330)
 
-        self.lb = Listbox(self.window, width=50, height=22, selectmode=MULTIPLE)
-        self.lb.place(x=641, y=199)
+        self.lb = Listbox(self.window, width=48, height=14, selectmode=MULTIPLE)
+        self.lb.place(x=600, y=300)
 
         self.remove_file = ImageTk.PhotoImage \
             (file='images\\remove_file_button_red.png')
@@ -107,59 +125,61 @@ class UserDashboard:
                                              font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
                                              , borderwidth=0, background="white", cursor="hand2",
                                              command=self.click_remove_file)
-        self.remove_file_button_red.place(x=110, y=470)
+        self.remove_file_button_red.place(x=160, y=420)
 
         self.combine_file = ImageTk.PhotoImage \
             (file='images\\combine_file_button_red.png')
         self.combine_file_button_red = Button(self.window, image=self.combine_file,
-                                                font=("yu gothic ui", 13, "bold"), relief=FLAT,
-                                                activebackground="white"
-                                                , borderwidth=0, background="white", cursor="hand2",command=self.click_combine_file)
+                                              font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                              activebackground="white"
+                                              , borderwidth=0, background="white", cursor="hand2",
+                                              command=self.click_combine_file)
         self.combine_file_button_red.configure(state="disabled")
-        self.combine_file_button_red.place(x=1015, y=300)
-
+        self.combine_file_button_red.place(x=1015, y=330)
 
         self.concatenate_file_user = ImageTk.PhotoImage \
             (file='images\\concatenate_file_button_red.png')
         self.concatenate_file_user_button_red = Button(self.window, image=self.concatenate_file_user,
                                                        font=("yu gothic ui", 13, "bold"), relief=FLAT,
                                                        activebackground="white"
-                                                       , borderwidth=0, background="white", cursor="hand2",command=self.click_concatenate_file_user)
+                                                       , borderwidth=0, background="white", cursor="hand2",
+                                                       command=self.click_concatenate_file_user)
         self.concatenate_file_user_button_red.configure(state="disabled")
-        self.concatenate_file_user_button_red.place(x=1015, y=480)
+        self.concatenate_file_user_button_red.place(x=1015, y=420)
 
         self.next_file = ImageTk.PhotoImage \
             (file='images\\next_button_red.png')
         self.next_file_button_red = Button(self.window, image=self.next_file,
                                            font=("yu gothic ui", 13, "bold"), relief=FLAT,
                                            activebackground="white"
-                                           , borderwidth=0, background="white", cursor="hand2", command=self.click_next_file)
+                                           , borderwidth=0, background="white", cursor="hand2",
+                                           command=self.click_next_file)
         # self.next_file_button_red.configure(state="disabled")
         self.next_file_button_red.place(x=1100, y=600)
 
         self.feature = ImageTk.PhotoImage \
             (file='images\\feature_button_red.png')
         self.feature_button_red = Button(self.window, image=self.feature,
-                                                  font=("yu gothic ui", 13, "bold"), relief=FLAT,
-                                                  activebackground="white"
-                                                  , borderwidth=0, background="white", cursor="hand2",
-                                                  command=self.run_feature_frame)
+                                         font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                         activebackground="white"
+                                         , borderwidth=0, background="white", cursor="hand2",
+                                         command=self.run_feature_frame)
         self.feature_button_red.configure(state="disabled")
         self.feature_button_red.place(x=150, y=24)
 
         self.selected_shape = ImageTk.PhotoImage \
             (file='images\\selected_shape.png')
         self.selected_shape_red = Button(self.window, image=self.selected_shape,
-                                             font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
-                                             , borderwidth=0, background="white", cursor="hand2")
+                                         font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
+                                         , borderwidth=0, background="white", cursor="hand2")
         self.selected_shape_red.place(x=55, y=120)
 
         self.model = ImageTk.PhotoImage \
             (file='images\\model_button_red.png')
         self.model_button_red = Button(self.window, image=self.model,
-                                        font=("yu gothic ui", 13, "bold"), relief=FLAT,
-                                        activebackground="white"
-                                        , borderwidth=0, background="white", cursor="hand2")
+                                       font=("yu gothic ui", 13, "bold"), relief=FLAT,
+                                       activebackground="white"
+                                       , borderwidth=0, background="white", cursor="hand2")
         self.model_button_red.configure(state="disabled")
         self.model_button_red.place(x=410, y=24)
 
