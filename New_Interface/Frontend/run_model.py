@@ -44,6 +44,9 @@ class RunModel:
     def apply_pca(self, data,n_elements_model):
         pca_data = PCA(n_components=n_elements_model)
         principal_components_data = pca_data.fit_transform(data)
+        eighenValues = pca_data.explained_variance_ratio_
+        plt.plot(eighenValues[:20])
+        plt.show()
         return principal_components_data
 
     def covert_to_dataframe(self, principal_components_data):
@@ -54,7 +57,6 @@ class RunModel:
         return principal_data_Df
 
     def smote(self, x, y):
-
         sm = SMOTE(random_state=42)
         X_sm, y_sm = sm.fit_resample(x, y)
 
@@ -68,7 +70,11 @@ class RunModel:
             X_sm, y_sm, random_state=42)
 
         # todo split them.
-        return X_train, X_test, y_train, y_test
+        return X_train, y_train
+
+    def clean_testing_split(self, x, y):
+        X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+        return X_test, y_test
 
     def run_svm(self, X_train, X_test, y_train,chosen_normalise):
         normaliser = self.normilzation_type(chosen_normalise)
@@ -199,7 +205,8 @@ class RunModel:
         # todo Hassan do you think we need scale
         # features = self.scale(features)
 
-        X_train, X_test, y_train, y_test = self.smote(features, label)
+        X_train, y_train = self.smote(features, label)
+        X_test, y_test = self.clean_testing_split(features, label)
 
         X_test, training_type, X_train = self.run_svm(X_train, X_test, y_train,chosen_normalise)
 
@@ -234,7 +241,8 @@ class RunModel:
         # todo Hassan do you think we need scale
         # features = self.scale(features)
 
-        X_train, X_test, y_train, y_test = self.smote(features, label)
+        X_train, y_train = self.smote(features, label)
+        X_test, y_test = self.clean_testing_split(features, label)
 
         training_type = RandomForestClassifier(random_state=42)
         training_type.fit(X_train, y_train)
@@ -265,7 +273,8 @@ class RunModel:
     def svm(self, features, label,chosen_normalise):
 
         # SMOTE
-        X_train, X_test, y_train, y_test = self.smote(features, label)
+        X_train, y_train = self.smote(features, label)
+        X_test, y_test = self.clean_testing_split(features, label)
         X_test, training_type, X_train = self.run_svm(X_train, X_test, y_train,chosen_normalise)
 
         scores = cross_val_predict(training_type, X_test, y_test, cv=10)
@@ -299,7 +308,8 @@ class RunModel:
         x, feature_named_column = \
             self.normalization(concatenate_data_labels, features_columns, chosen_normalise)
 
-        X_train, X_test, y_train, y_test = self.smote(x, labels)
+        X_train, y_train = self.smote(features, labels)
+        X_test, y_test = self.clean_testing_split(features, labels)
 
         training_type = RandomForestClassifier(random_state=42)
         training_type.fit(X_train, y_train)
@@ -363,7 +373,8 @@ class RunModel:
 
         #features = self.scale(features)
 
-        X_train, X_test, y_train, y_test = self.smote(features, labels)
+        X_train, y_train = self.smote(features, labels)
+        X_test, y_test = self.clean_testing_split(features, labels)
 
         clf = MLPClassifier(solver='lbfgs', alpha=1e-5, max_iter=max_iter,
                             hidden_layer_sizes=hidden_layer_sizes, random_state=1)
@@ -374,8 +385,10 @@ class RunModel:
         return clf, X_train
 
     def gradient_boosting_regression(self,features, labels):
-        X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2,
-                                                            random_state=42)
+        # X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2,
+        #                                                     random_state=42)
+        X_train, y_train = self.smote(features, labels)
+        X_test, y_test = self.clean_testing_split(features, labels)
         self.perform_feature_selection(X_train, X_test, y_train, y_test)
 
     def perform_feature_selection(self,X_train, X_test, y_train, y_test):

@@ -17,7 +17,7 @@ from New_Interface.Frontend.user_dashboard import UserDashboard
 FOLDER_URL = r'C:\Users\marci\OneDrive\Other\Desktop\Shared\Tool_Interface\New_Interface\Frontend\joined_files'
 
 class ExtractionDashboard(UserDashboard, RunModel):
-    def __init__(self, window,chosen_normalise):
+    def __init__(self, window,chosen_normalise, chosen_file):
         self.window = window
         windowWidth = self.window.winfo_reqwidth()
         windowHeight = self.window.winfo_reqheight()
@@ -31,6 +31,7 @@ class ExtractionDashboard(UserDashboard, RunModel):
         self.image_panel = Label(self.window, image=self.admin_dashboard_frame)
         self.image_panel.pack(fill='both', expand='yes')
         self.chosen_normalise = chosen_normalise
+        self.chosen_file = chosen_file
         self.set_frame()
 
     def set_frame(self):
@@ -91,13 +92,16 @@ class ExtractionDashboard(UserDashboard, RunModel):
         self.model_button_red.configure(state="disabled")
         self.model_button_red.place(x=410, y=24)
 
-        self.files = self.read_folder(FOLDER_URL)
+        self.files = [self.chosen_file]
         if len(self.files) != 0:
             self.chosen_file = StringVar(self.window)
             self.combo_chosen_file = OptionMenu(self.window, self.chosen_file,
                                           *self.files)
+            self.chosen_file.set(self.files[0])
             self.combo_chosen_file.configure(width=11)
             self.combo_chosen_file.place(x=123, y=280)
+
+
 
         self.next_frame = ImageTk.PhotoImage \
             (file='images\\next_button_red.png')

@@ -115,8 +115,6 @@ class ModelDashboard(RunModel, FeatureDashboard):
         self.explanation_button.configure(state='disabled')
         self.explanation_button.place(x=1100, y=443)
 
-
-
         self.specific_value = StringVar()
         self.n_elements_model = Entry(self.window, textvariable=self.specific_value)
         self.n_elements_model.configure(state="disabled", width='27')
@@ -138,8 +136,6 @@ class ModelDashboard(RunModel, FeatureDashboard):
         self.gbr_button.configure(state='disabled')
         self.gbr_button.place(x=800, y=443)
 
-
-
     def click_add(self):
         win = Toplevel()
         from New_Interface.Frontend import user_dashboard
@@ -150,7 +146,7 @@ class ModelDashboard(RunModel, FeatureDashboard):
     def run_extraction_frame(self):
         win = Toplevel()
         from New_Interface.Frontend import extraction_dashboard
-        extraction_dashboard.ExtractionDashboard(win,self.chosen_normalise)
+        extraction_dashboard.ExtractionDashboard(win,self.chosen_normalise,self.file_name)
         self.window.withdraw()
         win.deiconify()
 
@@ -212,8 +208,6 @@ class ModelDashboard(RunModel, FeatureDashboard):
         self.combo_explanation_value.configure(width=35)
         self.combo_explanation_value.place(x=124, y=467)
 
-
-
     def get_importance(self):
         explanation_type = self.chosen_explanation_value.get()
         if explanation_type == 'Nothing':
@@ -225,7 +219,6 @@ class ModelDashboard(RunModel, FeatureDashboard):
 
     def run_gbr(self):
         self.gradient_boosting_regression(self.features, self.chosen_label)
-
 
 
 def win():

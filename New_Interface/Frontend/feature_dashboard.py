@@ -199,7 +199,7 @@ class FeatureDashboard(UserDashboard):
     def run_extract_frame(self):
         win = Toplevel()
         from New_Interface.Frontend import extraction_dashboard
-        extraction_dashboard.ExtractionDashboard(win, self.chosen_normalise.get())
+        extraction_dashboard.ExtractionDashboard(win, self.chosen_normalise.get(),self.chosen_file.get())
         self.window.withdraw()
         win.deiconify()
 
@@ -236,7 +236,6 @@ if __name__ == '__main__':
     win()
 
 
-#todo delete null values
 
 # def chnageDs(dataset,listType):
 #     droped = 0
