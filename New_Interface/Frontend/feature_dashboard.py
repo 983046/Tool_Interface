@@ -4,6 +4,7 @@ import time
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 
+import pandastable
 from sklearn import preprocessing
 from ttkthemes import themed_tk as tk
 from tkinter import ttk, messagebox
@@ -62,22 +63,24 @@ class FeatureDashboard(UserDashboard):
         read_file = self.read_single_file(file_url)
 
         if choice == 'Mean':
-            #todo working out the mean
-            where_are_NaNs = np.isnan(read_file)
-            read_file[where_are_NaNs] = read_file.mean(axis=1)
-            read_file = read_file
+            # where_are_NaNs = np.isnan(read_file)
+            # read_file[where_are_NaNs] = read_file.mean(axis=1)
+            # read_file = read_file
+            read_file = read_file.fillna(read_file.mean())
             df = pd.DataFrame(read_file, columns=read_file.columns)
             df.to_csv(file_url)
         elif choice == 'Zero':
-            where_are_NaNs = np.isnan(read_file)
-            read_file[where_are_NaNs] = 0
-            read_file = read_file
+            # where_are_NaNs = np.isnan(read_file)
+            # read_file[where_are_NaNs] = 0
+            # read_file = read_file
+            read_file = read_file.fillna(0)
             df = pd.DataFrame(read_file, columns=read_file.columns)
             df.to_csv(file_url)
         elif choice == 'One':
-            where_are_NaNs = np.isnan(read_file)
-            read_file[where_are_NaNs] = 1
-            read_file = read_file
+            # where_are_NaNs = np.isnan(read_file)
+            # read_file[where_are_NaNs] = 1
+            # read_file = read_file
+            read_file = read_file.fillna(1)
             df = pd.DataFrame(read_file, columns=read_file.columns)
             df.to_csv(file_url)
         elif choice == 'Nothing':
@@ -213,6 +216,7 @@ class FeatureDashboard(UserDashboard):
         f.pack(fill=BOTH, expand=1)
         self.table = pt = Table(f,showtoolbar=True, showstatusbar=True)
         self.table.importCSV(file_url)
+        self.table.saveAs(file_url)
         pt.show()
 
 

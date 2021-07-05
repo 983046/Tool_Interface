@@ -17,7 +17,9 @@ from sklearn.svm import SVC
 imputer = SimpleImputer(strategy='median')
 from sklearn.ensemble import GradientBoostingRegressor
 import lime
-import lime.lime_tabular
+from lime import lime_tabular
+import xgboost as xgb
+
 
 
 class RunModel:
@@ -73,19 +75,8 @@ class RunModel:
         return X_train, y_train
 
     def clean_testing_split(self, x, y):
-        X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+        X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.4)
         return X_test, y_test
-
-    def run_svm(self, X_train, X_test, y_train,chosen_normalise):
-        normaliser = self.normilzation_type(chosen_normalise)
-        normaliser.fit(X_train)
-        X_train = normaliser.transform(X_train)
-        X_test = normaliser.transform(X_test)
-
-        training_type = SVC(kernel='rbf', gamma='auto', C=1.0,
-                            decision_function_shape='ovr').fit(X_train,
-                                                               y_train)
-        return (X_test, training_type, X_train)
 
     def two_dim_graph_train(self,X,y,training_type,number_of_columns):
         """
@@ -177,7 +168,7 @@ class RunModel:
         elif chosen_normalise == 'StandardScaler':
             return StandardScaler()
         else:
-            return StandardScaler()
+            pass
 
     def normalization(self, concatenate_data_labels, features_columns,chosen_normalise):
         """
@@ -201,26 +192,23 @@ class RunModel:
             self.normalization(concatenate_data_labels, features_columns,chosen_normalise)
 
         principal_components_data = self.apply_pca(x_data,n_elements_model)
-        features = self.covert_to_dataframe(principal_components_data)
-        # todo Hassan do you think we need scale
-        # features = self.scale(features)
+        features = pd.DataFrame(principal_components_data)
+
+        #features = self.covert_to_dataframe(principal_components_data)
+
 
         X_train, y_train = self.smote(features, label)
         X_test, y_test = self.clean_testing_split(features, label)
 
-        X_test, training_type, X_train = self.run_svm(X_train, X_test, y_train,chosen_normalise)
+        training_type = SVC(kernel='rbf', gamma='auto', C=1.0,
+                            decision_function_shape='ovr').fit(X_train,
+                                                               y_train)
+        preds = cross_val_predict(training_type, X_test, y_test, cv=10)
 
-        scores = cross_val_predict(training_type, X_test, y_test, cv=10)
-
-        accuracy_text = 'Accuracy: %0.2f (+/- %0.2f)' % (scores.mean(),
-                                                         scores.std() * 2)
-        accuracy_text = 'PCA with SVM: ' + accuracy_text
-        print(accuracy_text)
-
-        # CM
-        y_pred = training_type.predict(X_test)
-        cm = confusion_matrix(y_test, y_pred)
-        print('This is SVM confusion matrix: ')
+        print("Random forest classifier: ")
+        print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
+              f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        cm = confusion_matrix(y_test, preds)
         print(cm)
 
         shape = X_train.shape
@@ -229,17 +217,20 @@ class RunModel:
         # Print
         self.two_dim_graph_train(X_train, y_train, training_type, number_of_col)
 
-    def pca_regression(self, features, label,n_elements_model,chosen_normalise):
-        concatenate_data_labels, features_columns = self.concatenate(features,
-                                                                     label)
-        # PCA
-        x_data, feature_named_column = \
-            self.normalization(concatenate_data_labels, features_columns,chosen_normalise)
+        return training_type, X_train, X_test
 
-        principal_components_data = self.apply_pca(x_data,n_elements_model)
-        features = self.covert_to_dataframe(principal_components_data)
-        # todo Hassan do you think we need scale
-        # features = self.scale(features)
+    def pca_regression(self, features, label,n_elements_model,chosen_normalise):
+
+        if chosen_normalise != "Nothing":
+            concatenate_data_labels, features_columns = self.concatenate(features,
+                                                                         label)
+            # PCA
+            features, feature_named_column = \
+                self.normalization(concatenate_data_labels, features_columns,chosen_normalise)
+
+        principal_components_data = self.apply_pca(features,n_elements_model)
+        features = pd.DataFrame(principal_components_data)
+
 
         X_train, y_train = self.smote(features, label)
         X_test, y_test = self.clean_testing_split(features, label)
@@ -270,43 +261,50 @@ class RunModel:
         plt.show()
         plt.close()
 
+        return training_type, X_train, X_test
+
     def svm(self, features, label,chosen_normalise):
+        if chosen_normalise != "Nothing":
+            concatenate_data_labels, features_columns = self.concatenate(features,
+                                                                         label)
+            features, feature_named_column = \
+                self.normalization(concatenate_data_labels, features_columns, chosen_normalise)
+
 
         # SMOTE
         X_train, y_train = self.smote(features, label)
         X_test, y_test = self.clean_testing_split(features, label)
-        X_test, training_type, X_train = self.run_svm(X_train, X_test, y_train,chosen_normalise)
 
-        scores = cross_val_predict(training_type, X_test, y_test, cv=10)
+        training_type = SVC(kernel='rbf', gamma='auto', C=1.0,
+                            decision_function_shape='ovr').fit(X_train,
+                                                               y_train)
 
-        accuracy_text = 'Accuracy: %0.2f (+/- %0.2f)' % (scores.mean(),
-                                                         scores.std() * 2)
-        accuracy_text = 'SVM: ' + accuracy_text
-        print(accuracy_text)
+        preds = cross_val_predict(training_type, X_test, y_test, cv=10)
 
-        # CM
-        y_pred = training_type.predict(X_test)
-        cm = confusion_matrix(y_test, y_pred)
-        print('This is SVM confusion matrix: ')
+        print("SVM: ")
+        print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
+              f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        cm = confusion_matrix(y_test, preds)
         print(cm)
 
         plt.figure(figsize=(5, 7))
         ax = sns.distplot(y_test, hist=False, color='r',
                           label='Actual Value')
-        sns.distplot(y_pred, hist=False, color='b', label='Fitted Values',
+        sns.distplot(preds, hist=False, color='b', label='Fitted Values',
                      ax=ax)
         plt.title('Actual vs Fitted Values')
         plt.show()
         plt.close()
 
-        return training_type, X_train
+        return training_type, X_train, X_test
 
     def regression(self, features, labels,chosen_normalise):
         #x = self.scale(features)
-        concatenate_data_labels, features_columns = self.concatenate(features,
-                                                                     labels)
-        x, feature_named_column = \
-            self.normalization(concatenate_data_labels, features_columns, chosen_normalise)
+        if chosen_normalise != "Nothing":
+            concatenate_data_labels, features_columns = self.concatenate(features,
+                                                                         labels)
+            features, feature_named_column = \
+                self.normalization(concatenate_data_labels, features_columns, chosen_normalise)
 
         X_train, y_train = self.smote(features, labels)
         X_test, y_test = self.clean_testing_split(features, labels)
@@ -337,40 +335,51 @@ class RunModel:
         plt.show()
         plt.close()
 
-        return training_type, X_train
-
-    def importance_plot(self, training_type, X_train):
-        expShap = shap.TreeExplainer(training_type)
-        shap_values = expShap.shap_values(X_train)
-        shap.summary_plot(shap_values[0], X_train, plot_type='dot')
-        shap.summary_plot(shap_values, X_train, plot_type='bar')
-        # self.shap_plot(0, training_type, X_train)
-
-    def shap_dot_plot(self, training_type, X_train):
-        expShap = shap.TreeExplainer(training_type)
-        shap_values = expShap.shap_values(X_train)
-        shap.summary_plot(shap_values[0], X_train, plot_type='dot')
-
-    def shap_bar_plot(self, training_type, X_train):
-        expShap = shap.TreeExplainer(training_type)
-        shap_values = expShap.shap_values(X_train)
-        shap.summary_plot(shap_values, X_train, plot_type='bar')
-
-    def shap_plot(self, j, training_type, X_train):
-        explainerModel = shap.TreeExplainer(training_type)
-        shap_values_Model = explainerModel.shap_values(X_train)
-        # shap.force_plot(explainerModel.expected_value[j], shap_values_Model[j])
+        return training_type, X_train, X_test
 
     def MLPRegression(self, features, labels,chosen_normalise):
         max_iter = 1000
         hidden_layer_sizes = 15
-        concatenate_data_labels, features_columns = self.concatenate(features,
-                                                                     labels)
-        features, feature_named_column = \
-            self.normalization(concatenate_data_labels, features_columns, chosen_normalise)
+        if chosen_normalise != "Nothing":
+            concatenate_data_labels, features_columns = self.concatenate(features,
+                                                                         labels)
+            features, feature_named_column = \
+                self.normalization(concatenate_data_labels, features_columns, chosen_normalise)
+
+
+        #features = self.scale(features)
+
+        X_train, y_train = self.smote(features, labels)
+        X_test, y_test = self.clean_testing_split(features, labels)
+
+        clf = MLPClassifier(solver='lbfgs', alpha=1e-5, max_iter=max_iter,
+                            hidden_layer_sizes=hidden_layer_sizes, random_state=1)
+        clf.fit(X_train, y_train)
+        preds = cross_val_predict(clf, X_test, y_test, cv=10)
+
+        print("MLPRegression")
+        print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
+              f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        cm = confusion_matrix(y_test, preds)
+        print(cm)
 
 
 
+        return clf, X_train, X_test
+
+    def pca_MLPRegression(self, features, labels,n_elements_model,chosen_normalise):
+        max_iter = 1000
+        hidden_layer_sizes = 15
+        if chosen_normalise != "Nothing":
+            concatenate_data_labels, features_columns = self.concatenate(features,
+                                                                         labels)
+            # PCA
+            features, feature_named_column = \
+                self.normalization(concatenate_data_labels, features_columns, chosen_normalise)
+
+        principal_components_data = self.apply_pca(features, n_elements_model)
+        # features = self.covert_to_dataframe(principal_components_data)
+        features = pd.DataFrame(principal_components_data)
         #features = self.scale(features)
 
         X_train, y_train = self.smote(features, labels)
@@ -382,7 +391,7 @@ class RunModel:
         y_pred = clf.predict(X_test)
         print(clf.score(X_test, y_pred))
 
-        return clf, X_train
+        return clf, X_train, X_test
 
     def gradient_boosting_regression(self,features, labels):
         # X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2,
@@ -476,3 +485,101 @@ class RunModel:
         plt.tight_layout()
         plt.show()
         plt.close()
+
+    def XGBoost(self,features, labels,chosen_normalise ):
+        if chosen_normalise != "Nothing":
+            concatenate_data_labels, features_columns = self.concatenate(features,
+                                                                         labels)
+            features, feature_named_column = \
+                self.normalization(concatenate_data_labels, features_columns, chosen_normalise)
+
+        X_train, y_train = self.smote(features, labels)
+        X_test, y_test = self.clean_testing_split(features, labels)
+
+        xgb_model = xgb.XGBClassifier(objective ='reg:linear', colsample_bytree = 0.3, learning_rate = 0.1,
+                max_depth = 5, alpha = 10, n_estimators = 10)
+        xgb_model.fit(X_train,y_train)
+
+        preds = cross_val_predict(xgb_model, X_test, y_test, cv=10)
+
+        print("XGBoost")
+        print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
+              f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        cm = confusion_matrix(y_test, preds)
+        print(cm)
+
+        return xgb_model, X_train, X_test
+
+    def pca_XGBoost(self,features, labels,n_elements_model,chosen_normalise ):
+        if chosen_normalise != "Nothing":
+            concatenate_data_labels, features_columns = self.concatenate(features,
+                                                                         labels)
+            # PCA
+            features, feature_named_column = \
+                self.normalization(concatenate_data_labels, features_columns, chosen_normalise)
+
+        principal_components_data = self.apply_pca(features, n_elements_model)
+        features = pd.DataFrame(principal_components_data)
+
+        X_train, y_train = self.smote(features, labels)
+        X_test, y_test = self.clean_testing_split(features, labels)
+
+        xgb_model = xgb.XGBClassifier(objective ='reg:linear', colsample_bytree = 0.3, learning_rate = 0.1,
+                max_depth = 5, alpha = 10, n_estimators = 10)
+        xgb_model.fit(X_train,y_train)
+
+        preds = cross_val_predict(xgb_model, X_test, y_test, cv=10)
+
+        print("MLPRegression")
+        print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
+              f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        cm = confusion_matrix(y_test, preds)
+        print(cm)
+
+        return xgb_model, X_train, X_test
+
+    #todo PLot is here
+
+    def importance_plot(self, training_type, X_train):
+        expShap = shap.TreeExplainer(training_type)
+        shap_values = expShap.shap_values(X_train)
+        shap.summary_plot(shap_values[0], X_train, plot_type='dot')
+        shap.summary_plot(shap_values, X_train, plot_type='bar')
+        # self.shap_plot(0, training_type, X_train)
+
+    def shap_dot_plot(self, training_type, X_train):
+        expShap = shap.TreeExplainer(training_type)
+        shap_values = expShap.shap_values(X_train)
+        shap.summary_plot(shap_values[0], X_train, plot_type='dot')
+
+    def shap_bar_plot(self, training_type, X_train):
+        expShap = shap.TreeExplainer(training_type)
+        shap_values = expShap.shap_values(X_train)
+        shap.summary_plot(shap_values, X_train, plot_type='bar')
+
+    def shap_plot(self, j, training_type, X_train):
+        explainerModel = shap.TreeExplainer(training_type)
+        shap_values_Model = explainerModel.shap_values(X_train)
+        # shap.force_plot(explainerModel.expected_value[j], shap_values_Model[j])
+
+    def shap_dependence_plot(self, training_type, X_train):
+        expShap = shap.TreeExplainer(training_type)
+        shap_values = expShap.shap_values(X_train)
+        shap.dependence_plot("SEQN", shap_values[0], X_train)
+
+    def lime_plot(self, training_type, X_train, X_test, features):
+        #columns=X_test.columns.values
+        X_test = pd.DataFrame(X_test)
+        explainer = lime_tabular.LimeTabularExplainer(
+            training_data=np.array(X_train),
+            feature_names=features.columns,
+            class_names=['bad', 'good'],
+            mode='classification'
+        )
+
+        exp = explainer.explain_instance(
+            data_row=X_test.iloc[1],
+            predict_fn=training_type.predict_proba
+        )
+        exp.save_to_file('oi.html')
+

@@ -102,7 +102,7 @@ class ConcatenateFiles(UserDashboard):
         self.model_button_red.place(x=410, y=24)
 
         self.extract = ImageTk.PhotoImage \
-            (file='images\\extract_button_blue.png')
+            (file='images\\extract_button_red.png')
         self.extract_button_red = Button(self.window, image=self.extract,
                                         font=("yu gothic ui", 13, "bold"), relief=FLAT,
                                         activebackground="white"

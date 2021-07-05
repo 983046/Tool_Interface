@@ -5,11 +5,12 @@ from tkinter import *
 from tkinter.filedialog import askopenfilename
 
 from ttkthemes import themed_tk as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, simpledialog
 from PIL import ImageTk
 import pandas as pd
 from pandastable import Table, TableModel
 import numpy as np
+import pickle
 
 
 from New_Interface.Frontend.run_model import RunModel
@@ -17,6 +18,7 @@ from New_Interface.Frontend.user_dashboard import UserDashboard
 from New_Interface.Frontend.feature_dashboard import FeatureDashboard
 
 FOLDER_URL = r'C:\Users\marci\OneDrive\Other\Desktop\Shared\Tool_Interface\New_Interface\Frontend\joined_files'
+SAVED_MODEL_URL = r'C:\Users\marci\OneDrive\Other\Desktop\Shared\Tool_Interface\New_Interface\Frontend\saved_model'
 
 class ModelDashboard(RunModel, FeatureDashboard):
     def __init__(self, window, label, deeper_label,file_name, ticked_deeper,chosen_normalise):
@@ -82,7 +84,7 @@ class ModelDashboard(RunModel, FeatureDashboard):
                                          command=self.run_extraction_frame)
         self.extract_button_red.place(x=278, y=24)
 
-        self.model_value = ['SVM', 'Regression', 'MLPRegressor', 'Nothing']
+        self.model_value = ['SVM', 'Regression', 'MLPRegressor','XGBoost','Nothing']
         self.chosen_model_value = StringVar(self.window)
         self.combo_model_value = OptionMenu(self.window, self.chosen_model_value, *self.model_value)
         self.combo_model_value.configure(width=11)
@@ -127,6 +129,14 @@ class ModelDashboard(RunModel, FeatureDashboard):
                                          , borderwidth=0, background="white", cursor="hand2")
         self.selected_shape_red.place(x=445, y=120)
 
+        self.save_model = ImageTk.PhotoImage \
+            (file='images\\save_model_button_red.png')
+        self.save_model_button = Button(self.window, image=self.save_model,
+                                         font=("yu gothic ui", 13, "bold"), relief=FLAT, activebackground="white"
+                                         , borderwidth=0, background="white", cursor="hand2", command=self.save_model_pressed)
+        self.save_model_button.configure(state='disabled')
+        self.save_model_button.place(x=1100, y=574)
+
         self.gbr = ImageTk.PhotoImage \
             (file='images\\gbr_button_red.png')
         self.gbr_button = Button(self.window, image=self.gbr,
@@ -135,6 +145,11 @@ class ModelDashboard(RunModel, FeatureDashboard):
                                          command=self.run_gbr)
         self.gbr_button.configure(state='disabled')
         self.gbr_button.place(x=800, y=443)
+
+    def save_model_pressed(self):
+        user_input = simpledialog.askstring(title="File Name", prompt="Enter name for the file.:")
+        document_name = SAVED_MODEL_URL + '\\' + user_input + '.sav'
+        pickle.dump(self.training_type, open(document_name, 'wb'))
 
     def click_add(self):
         win = Toplevel()
@@ -180,27 +195,37 @@ class ModelDashboard(RunModel, FeatureDashboard):
             try:
                 integer_result = int(self.specific_value.get())
                 if self.model == 'SVM':
-                    self.training_type, X_train = self.pca_svm(self.features, self.chosen_label, integer_result,self.chosen_normalise)
-                    self.explanation_value = ['gradient boosting regression', 'Nothing']
+                    self.training_type, X_train, self.X_test = self.pca_svm(self.features, self.chosen_label, integer_result,self.chosen_normalise)
+                    self.explanation_value = ['Nothing']
                 elif self.model == 'Regression':
-                    self.training_type, X_train = self.pca_regression(self.features, self.chosen_label, integer_result,self.chosen_normalise)
-                    self.explanation_value = ['gradient boosting regression', 'Shap Dot Plot', 'Shap Bar Plot', 'Nothing']
+                    self.training_type, X_train, self.X_test = self.pca_regression(self.features, self.chosen_label, integer_result,self.chosen_normalise)
+                    self.explanation_value = ['Shap dependence Plot','Shap Dot Plot', 'Shap Bar Plot', 'Nothing']
                 elif self.model == 'MLPRegressor':
-                    self.explanation_value = [ 'Nothing']
+                    self.training_type, self.X_train, self.X_test = self.pca_MLPRegression(self.features, self.chosen_label,integer_result,
+                                                                          self.chosen_normalise)
+                    self.explanation_value = ['lime plot','Shap dependence Plot', 'Shap Dot Plot', 'Shap Bar Plot', 'Nothing']
+                elif self.model == 'XGBoost':
+                    self.explanation_value = ['lime plot', 'Shap dependence Plot','Shap Dot Plot', 'Shap Bar Plot', 'Nothing']
+                    self.training_type, self.X_train, self.X_test = self.pca_XGBoost(self.features, self.chosen_label,integer_result,
+                                                                                 self.chosen_normalise)
+
             except ValueError:
                 messagebox.showerror('Components', 'Number of components need to be a number!')
         else:
             if self.model == 'SVM':
                 self.explanation_value = ['Nothing']
-                self.training_type, self.X_train = self.svm(self.features, self.chosen_label,self.chosen_normalise)
-            elif self.model == 'Regression':
-                self.explanation_value = ['Shap Dot Plot', 'Shap Bar Plot', 'Nothing']
-                self.training_type, self.X_train = self.regression(self.features, self.chosen_label,self.chosen_normalise)
-            elif self.model == 'MLPRegressor':
-                self.explanation_value = ['Shap Dot Plot', 'Shap Bar Plot', 'Nothing']
-                self.training_type, self.X_train = self.MLPRegression(self.features, self.chosen_label,self.chosen_normalise)
+                self.training_type, self.X_train, self.X_test = self.svm(self.features, self.chosen_label,self.chosen_normalise)
+            elif self.model == 'Regression': #todo lime,
+                self.explanation_value = ['Shap dependence Plot','Shap Dot Plot', 'Shap Bar Plot', 'Nothing']
+                self.training_type, self.X_train, self.X_test = self.regression(self.features, self.chosen_label,self.chosen_normalise)
+            elif self.model == 'MLPRegressor': #todo just lime
+                self.explanation_value = ['lime plot', 'Nothing']
+                self.training_type, self.X_train, self.X_test = self.MLPRegression(self.features, self.chosen_label,self.chosen_normalise)
+            elif self.model == 'XGBoost':
+                self.explanation_value = ['lime plot', 'Shap Bar Plot', 'Nothing']
+                self.training_type, self.X_train, self.X_test = self.XGBoost(self.features, self.chosen_label,self.chosen_normalise)
 
-
+        self.save_model_button.configure(state='normal')
         self.gbr_button.configure(state='normal')
         self.explanation_button.configure(state="normal")
         self.chosen_explanation_value = StringVar(self.window)
@@ -216,6 +241,11 @@ class ModelDashboard(RunModel, FeatureDashboard):
             self.shap_dot_plot(self.training_type, self.X_train)
         elif explanation_type == 'Shap Bar Plot':
             self.shap_bar_plot(self.training_type, self.X_train)
+        elif explanation_type == 'Shap dependence Plot':
+            self.shap_dependence_plot(self.training_type, self.X_train)
+        elif explanation_type == 'lime plot':
+            self.lime_plot(self.training_type, self.X_train, self.X_test,self.features)
+
 
     def run_gbr(self):
         self.gradient_boosting_regression(self.features, self.chosen_label)
