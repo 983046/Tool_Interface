@@ -201,8 +201,14 @@ class ModelDashboard(RunModel, FeatureDashboard):
                     self.training_type, X_train, self.X_test = self.pca_regression(self.features, self.chosen_label, integer_result,self.chosen_normalise)
                     self.explanation_value = ['Shap dependence Plot','Shap Dot Plot', 'Shap Bar Plot', 'Nothing']
                 elif self.model == 'MLPRegressor':
+                    self.max_iter = simpledialog.askstring(title="max_iter", prompt="Enter the amount of max iterations:",
+                                                        parent=self.window)
+                    self.hidden_layer_sizes = simpledialog.askstring(title="hidden_layer_sizes", prompt="Enter the amount of "
+                                                                                           "hidden layers:",
+                                                        parent=self.window)
+
                     self.training_type, self.X_train, self.X_test = self.pca_MLPRegression(self.features, self.chosen_label,integer_result,
-                                                                          self.chosen_normalise)
+                                                                          self.chosen_normalise,self.max_iter,self.hidden_layer_sizes )
                     self.explanation_value = ['lime plot','Shap dependence Plot', 'Shap Dot Plot', 'Shap Bar Plot', 'Nothing']
                 elif self.model == 'XGBoost':
                     self.explanation_value = ['lime plot', 'Shap dependence Plot','Shap Dot Plot', 'Shap Bar Plot', 'Nothing']
@@ -219,8 +225,14 @@ class ModelDashboard(RunModel, FeatureDashboard):
                 self.explanation_value = ['Shap dependence Plot','Shap Dot Plot', 'Shap Bar Plot', 'Nothing']
                 self.training_type, self.X_train, self.X_test = self.regression(self.features, self.chosen_label,self.chosen_normalise)
             elif self.model == 'MLPRegressor': #todo just lime
+                self.max_iter = simpledialog.askstring(title="max_iter", prompt="Enter the amount of max iterations:",
+                                                       parent=self.window)
+                self.hidden_layer_sizes = simpledialog.askstring(title="hidden_layer_sizes",
+                                                                 prompt="Enter the amount of "
+                                                                        "hidden layers:",
+                                                                 parent=self.window)
                 self.explanation_value = ['lime plot', 'Nothing']
-                self.training_type, self.X_train, self.X_test = self.MLPRegression(self.features, self.chosen_label,self.chosen_normalise)
+                self.training_type, self.X_train, self.X_test = self.MLPRegression(self.features, self.chosen_label,self.chosen_normalise,self.max_iter,self.hidden_layer_sizes)
             elif self.model == 'XGBoost':
                 self.explanation_value = ['lime plot', 'Shap Bar Plot', 'Nothing']
                 self.training_type, self.X_train, self.X_test = self.XGBoost(self.features, self.chosen_label,self.chosen_normalise)
@@ -245,7 +257,6 @@ class ModelDashboard(RunModel, FeatureDashboard):
             self.shap_dependence_plot(self.training_type, self.X_train)
         elif explanation_type == 'lime plot':
             self.lime_plot(self.training_type, self.X_train, self.X_test,self.features)
-
 
     def run_gbr(self):
         self.gradient_boosting_regression(self.features, self.chosen_label)

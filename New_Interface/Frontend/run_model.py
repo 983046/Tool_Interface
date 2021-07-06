@@ -9,17 +9,17 @@ from sklearn import tree
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import accuracy_score, recall_score, confusion_matrix
+from sklearn.metrics import accuracy_score, recall_score, confusion_matrix, precision_score
 from sklearn.model_selection import *
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, Normalizer
 from sklearn.svm import SVC
+
 imputer = SimpleImputer(strategy='median')
 from sklearn.ensemble import GradientBoostingRegressor
 import lime
 from lime import lime_tabular
 import xgboost as xgb
-
 
 
 class RunModel:
@@ -43,7 +43,7 @@ class RunModel:
         print(labels)
         return features, labels
 
-    def apply_pca(self, data,n_elements_model):
+    def apply_pca(self, data, n_elements_model):
         pca_data = PCA(n_components=n_elements_model)
         principal_components_data = pca_data.fit_transform(data)
         eighenValues = pca_data.explained_variance_ratio_
@@ -78,7 +78,7 @@ class RunModel:
         X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.4)
         return X_test, y_test
 
-    def two_dim_graph_train(self,X,y,training_type,number_of_columns):
+    def two_dim_graph_train(self, X, y, training_type, number_of_columns):
         """
         Shows the graph of passed in data and labels.
         :param X: Data
@@ -170,7 +170,7 @@ class RunModel:
         else:
             pass
 
-    def normalization(self, concatenate_data_labels, features_columns,chosen_normalise):
+    def normalization(self, concatenate_data_labels, features_columns, chosen_normalise):
         """
         Makes all the values to be between 0 to 1 for rows.
         :param concatenate_data_labels: Joined data and labels
@@ -184,18 +184,17 @@ class RunModel:
         Feature_named_column = pd.DataFrame(data, columns=feat_cols)
         return (data, Feature_named_column)
 
-    def pca_svm(self, features, label, n_elements_model,chosen_normalise):
+    def pca_svm(self, features, label, n_elements_model, chosen_normalise):
         concatenate_data_labels, features_columns = self.concatenate(features,
                                                                      label)
         # PCA
         x_data, feature_named_column = \
-            self.normalization(concatenate_data_labels, features_columns,chosen_normalise)
+            self.normalization(concatenate_data_labels, features_columns, chosen_normalise)
 
-        principal_components_data = self.apply_pca(x_data,n_elements_model)
+        principal_components_data = self.apply_pca(x_data, n_elements_model)
         features = pd.DataFrame(principal_components_data)
 
-        #features = self.covert_to_dataframe(principal_components_data)
-
+        # features = self.covert_to_dataframe(principal_components_data)
 
         X_train, y_train = self.smote(features, label)
         X_test, y_test = self.clean_testing_split(features, label)
@@ -206,8 +205,12 @@ class RunModel:
         preds = cross_val_predict(training_type, X_test, y_test, cv=10)
 
         print("Random forest classifier: ")
-        print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
-              f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        try:
+            print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
+                  f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        except:
+            print('Precision = :', precision_score(y_test, preds, average='micro'))
+            print("Recall Score : ", recall_score(y_test, preds, average='micro'))
         cm = confusion_matrix(y_test, preds)
         print(cm)
 
@@ -219,18 +222,17 @@ class RunModel:
 
         return training_type, X_train, X_test
 
-    def pca_regression(self, features, label,n_elements_model,chosen_normalise):
+    def pca_regression(self, features, label, n_elements_model, chosen_normalise):
 
         if chosen_normalise != "Nothing":
             concatenate_data_labels, features_columns = self.concatenate(features,
                                                                          label)
             # PCA
             features, feature_named_column = \
-                self.normalization(concatenate_data_labels, features_columns,chosen_normalise)
+                self.normalization(concatenate_data_labels, features_columns, chosen_normalise)
 
-        principal_components_data = self.apply_pca(features,n_elements_model)
+        principal_components_data = self.apply_pca(features, n_elements_model)
         features = pd.DataFrame(principal_components_data)
-
 
         X_train, y_train = self.smote(features, label)
         X_test, y_test = self.clean_testing_split(features, label)
@@ -240,8 +242,13 @@ class RunModel:
         preds = cross_val_predict(training_type, X_test, y_test, cv=10)
 
         print("Random forest classifier: ")
-        print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
-              f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        print("pca_MLPRegression")
+        try:
+            print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
+                  f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        except:
+            print('Precision = :', precision_score(y_test, preds, average='micro'))
+            print("Recall Score : ", recall_score(y_test, preds, average='micro'))
         cm = confusion_matrix(y_test, preds)
         print(cm)
 
@@ -263,13 +270,12 @@ class RunModel:
 
         return training_type, X_train, X_test
 
-    def svm(self, features, label,chosen_normalise):
+    def svm(self, features, label, chosen_normalise):
         if chosen_normalise != "Nothing":
             concatenate_data_labels, features_columns = self.concatenate(features,
                                                                          label)
             features, feature_named_column = \
                 self.normalization(concatenate_data_labels, features_columns, chosen_normalise)
-
 
         # SMOTE
         X_train, y_train = self.smote(features, label)
@@ -282,8 +288,12 @@ class RunModel:
         preds = cross_val_predict(training_type, X_test, y_test, cv=10)
 
         print("SVM: ")
-        print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
-              f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        try:
+            print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
+                  f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        except:
+            print('Precision = :', precision_score(y_test, preds, average='micro'))
+            print("Recall Score : ", recall_score(y_test, preds, average='micro'))
         cm = confusion_matrix(y_test, preds)
         print(cm)
 
@@ -298,8 +308,8 @@ class RunModel:
 
         return training_type, X_train, X_test
 
-    def regression(self, features, labels,chosen_normalise):
-        #x = self.scale(features)
+    def regression(self, features, labels, chosen_normalise):
+        # x = self.scale(features)
         if chosen_normalise != "Nothing":
             concatenate_data_labels, features_columns = self.concatenate(features,
                                                                          labels)
@@ -314,8 +324,12 @@ class RunModel:
         preds = cross_val_predict(training_type, X_test, y_test, cv=10)
 
         print("Random forest classifier: ")
-        print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
-              f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        try:
+            print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
+                  f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        except:
+            print('Precision = :', precision_score(y_test, preds, average='micro'))
+            print("Recall Score : ", recall_score(y_test, preds, average='micro'))
         cm = confusion_matrix(y_test, preds)
         print(cm)
 
@@ -337,17 +351,14 @@ class RunModel:
 
         return training_type, X_train, X_test
 
-    def MLPRegression(self, features, labels,chosen_normalise):
-        max_iter = 1000
-        hidden_layer_sizes = 15
+    def MLPRegression(self, features, labels, chosen_normalise,max_iter,hidden_layer_sizes):
         if chosen_normalise != "Nothing":
             concatenate_data_labels, features_columns = self.concatenate(features,
                                                                          labels)
             features, feature_named_column = \
                 self.normalization(concatenate_data_labels, features_columns, chosen_normalise)
 
-
-        #features = self.scale(features)
+        # features = self.scale(features)
 
         X_train, y_train = self.smote(features, labels)
         X_test, y_test = self.clean_testing_split(features, labels)
@@ -358,18 +369,20 @@ class RunModel:
         preds = cross_val_predict(clf, X_test, y_test, cv=10)
 
         print("MLPRegression")
-        print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
-              f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        try:
+            print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
+                  f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        except:
+            print('Precision = :', precision_score(y_test, preds, average='micro'))
+            print("Recall Score : ", recall_score(y_test, preds, average='micro'))
         cm = confusion_matrix(y_test, preds)
         print(cm)
 
-
-
         return clf, X_train, X_test
 
-    def pca_MLPRegression(self, features, labels,n_elements_model,chosen_normalise):
-        max_iter = 1000
-        hidden_layer_sizes = 15
+    def pca_MLPRegression(self, features, labels, n_elements_model, chosen_normalise,max_iter,hidden_layer_sizes):
+        # max_iter = 1000
+        # hidden_layer_sizes = 15
         if chosen_normalise != "Nothing":
             concatenate_data_labels, features_columns = self.concatenate(features,
                                                                          labels)
@@ -380,7 +393,7 @@ class RunModel:
         principal_components_data = self.apply_pca(features, n_elements_model)
         # features = self.covert_to_dataframe(principal_components_data)
         features = pd.DataFrame(principal_components_data)
-        #features = self.scale(features)
+        # features = self.scale(features)
 
         X_train, y_train = self.smote(features, labels)
         X_test, y_test = self.clean_testing_split(features, labels)
@@ -388,19 +401,30 @@ class RunModel:
         clf = MLPClassifier(solver='lbfgs', alpha=1e-5, max_iter=max_iter,
                             hidden_layer_sizes=hidden_layer_sizes, random_state=1)
         clf.fit(X_train, y_train)
-        y_pred = clf.predict(X_test)
-        print(clf.score(X_test, y_pred))
+
+        preds = cross_val_predict(clf, X_test, y_test, cv=10)
+
+        print("pca_MLPRegression")
+        try:
+            print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
+                  f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        except:
+            print('Precision = :', precision_score(y_test, preds, average='micro'))
+            print("Recall Score : ", recall_score(y_test, preds, average='micro'))
+
+        cm = confusion_matrix(y_test, preds)
+        print(cm)
 
         return clf, X_train, X_test
 
-    def gradient_boosting_regression(self,features, labels):
+    def gradient_boosting_regression(self, features, labels):
         # X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2,
         #                                                     random_state=42)
         X_train, y_train = self.smote(features, labels)
         X_test, y_test = self.clean_testing_split(features, labels)
         self.perform_feature_selection(X_train, X_test, y_train, y_test)
 
-    def perform_feature_selection(self,X_train, X_test, y_train, y_test):
+    def perform_feature_selection(self, X_train, X_test, y_train, y_test):
         """
         Method to perform feature selection using gradient booster.
         :param X_train: Training data
@@ -486,7 +510,7 @@ class RunModel:
         plt.show()
         plt.close()
 
-    def XGBoost(self,features, labels,chosen_normalise ):
+    def XGBoost(self, features, labels, chosen_normalise):
         if chosen_normalise != "Nothing":
             concatenate_data_labels, features_columns = self.concatenate(features,
                                                                          labels)
@@ -496,21 +520,27 @@ class RunModel:
         X_train, y_train = self.smote(features, labels)
         X_test, y_test = self.clean_testing_split(features, labels)
 
-        xgb_model = xgb.XGBClassifier(objective ='reg:linear', colsample_bytree = 0.3, learning_rate = 0.1,
-                max_depth = 5, alpha = 10, n_estimators = 10)
-        xgb_model.fit(X_train,y_train)
+        xgb_model = xgb.XGBClassifier(objective='reg:linear', colsample_bytree=0.3, learning_rate=0.1,
+                                      max_depth=5, alpha=10, n_estimators=10)
+        xgb_model.fit(X_train, y_train)
 
         preds = cross_val_predict(xgb_model, X_test, y_test, cv=10)
 
         print("XGBoost")
-        print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
-              f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+
+        try:
+            print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
+                  f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        except:
+            print('Precision = :', precision_score(y_test, preds, average='micro'))
+            print("Recall Score : ", recall_score(y_test, preds, average='micro'))
+
         cm = confusion_matrix(y_test, preds)
         print(cm)
 
         return xgb_model, X_train, X_test
 
-    def pca_XGBoost(self,features, labels,n_elements_model,chosen_normalise ):
+    def pca_XGBoost(self, features, labels, n_elements_model, chosen_normalise):
         if chosen_normalise != "Nothing":
             concatenate_data_labels, features_columns = self.concatenate(features,
                                                                          labels)
@@ -524,21 +554,25 @@ class RunModel:
         X_train, y_train = self.smote(features, labels)
         X_test, y_test = self.clean_testing_split(features, labels)
 
-        xgb_model = xgb.XGBClassifier(objective ='reg:linear', colsample_bytree = 0.3, learning_rate = 0.1,
-                max_depth = 5, alpha = 10, n_estimators = 10)
-        xgb_model.fit(X_train,y_train)
+        xgb_model = xgb.XGBClassifier(objective='reg:linear', colsample_bytree=0.3, learning_rate=0.1,
+                                      max_depth=5, alpha=10, n_estimators=10)
+        xgb_model.fit(X_train, y_train)
 
         preds = cross_val_predict(xgb_model, X_test, y_test, cv=10)
 
-        print("MLPRegression")
-        print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
-              f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        print("pca_XGBoost")
+        try:
+            print(f'Accuracy = {accuracy_score(y_test, preds):.2f}'
+                  f'\nRecall = {recall_score(y_test, preds):.2f}\n')
+        except:
+            print('Precision = :', precision_score(y_test, preds, average='micro'))
+            print("Recall Score : ", recall_score(y_test, preds, average='micro'))
         cm = confusion_matrix(y_test, preds)
         print(cm)
 
         return xgb_model, X_train, X_test
 
-    #todo PLot is here
+    # todo PLot is here
 
     def importance_plot(self, training_type, X_train):
         expShap = shap.TreeExplainer(training_type)
@@ -568,7 +602,7 @@ class RunModel:
         shap.dependence_plot("SEQN", shap_values[0], X_train)
 
     def lime_plot(self, training_type, X_train, X_test, features):
-        #columns=X_test.columns.values
+        # columns=X_test.columns.values
         X_test = pd.DataFrame(X_test)
         explainer = lime_tabular.LimeTabularExplainer(
             training_data=np.array(X_train),
@@ -582,4 +616,3 @@ class RunModel:
             predict_fn=training_type.predict_proba
         )
         exp.save_to_file('oi.html')
-
