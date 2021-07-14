@@ -14,6 +14,11 @@ from sklearn.model_selection import *
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, Normalizer
 from sklearn.svm import SVC
+import tkinter as tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import pdfkit
+from pdf2image import convert_from_path
+
 
 imputer = SimpleImputer(strategy='median')
 from sklearn.ensemble import GradientBoostingRegressor
@@ -21,6 +26,9 @@ import lime
 from lime import lime_tabular
 import xgboost as xgb
 
+FILE_URL = 'C:\\Users\\marci\\OneDrive\\Other\\Desktop\\Shared\\Tool_Interface\\New_Interface\\Frontend\\HTML_file'
+HTML_IMAGE_URL = 'C:\\Users\\marci\\OneDrive\\Other\\Desktop\\Shared\\Tool_Interface\\New_Interface\\Frontend\\HTML_image'
+HTML_pdf = 'C:\\Users\\marci\\OneDrive\\Other\\Desktop\\Shared\\Tool_Interface\\New_Interface\\Frontend\\HTML_pdf'
 
 class RunModel:
     def feature_label(self, read_file, label):
@@ -47,8 +55,15 @@ class RunModel:
         pca_data = PCA(n_components=n_elements_model)
         principal_components_data = pca_data.fit_transform(data)
         eighenValues = pca_data.explained_variance_ratio_
+        appPlot = tk.Tk()
+
+        plot = plt.figure(figsize=(5, 7))
         plt.plot(eighenValues[:20])
-        plt.show()
+
+        canvas = FigureCanvasTkAgg(plot, appPlot)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+
         return principal_components_data
 
     def covert_to_dataframe(self, principal_components_data):
@@ -87,6 +102,9 @@ class RunModel:
         :param number_of_columns: Integer value of number of columns
         """
 
+        X = X.to_numpy()
+        y = y.to_numpy()
+
         (set_for_X, set_for_Y) = (X, y)
         (ravel_1, ravel_2) = np.meshgrid(np.arange(start=set_for_X[:, 0].min() - 1,
                                                    stop=set_for_X[:, 0].max() + 1, step=0.01),
@@ -98,6 +116,7 @@ class RunModel:
 
         pred = training_type.decision_function(Xpred).reshape(ravel_1.shape)
 
+        plot = plt.figure(figsize=(15, 10))
         plt.contourf(
             ravel_1,
             ravel_2,
@@ -116,7 +135,13 @@ class RunModel:
         plt.ylabel('principal component 1')
         plt.tight_layout()
         plt.legend()
-        plt.show()
+        # plt.show()
+
+        appPlot = tk.Tk()
+
+        canvas = FigureCanvasTkAgg(plot, appPlot)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 
     def scale(self, data):
         """
@@ -220,6 +245,19 @@ class RunModel:
         # Print
         self.two_dim_graph_train(X_train, y_train, training_type, number_of_col)
 
+        appPlot = tk.Tk()
+
+        plot = plt.figure(figsize=(5, 7))
+        ax = sns.distplot(y_test, hist=False, color="r", label="Actual Value")
+        sns.distplot(preds, hist=False, color="b", label="Fitted Values", ax=ax)
+        plt.title('Actual vs Fitted Values')
+        plt.tight_layout()
+        # test.show()
+
+        canvas = FigureCanvasTkAgg(plot, appPlot)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+
         return training_type, X_train, X_test
 
     def pca_regression(self, features, label, n_elements_model, chosen_normalise):
@@ -252,21 +290,35 @@ class RunModel:
         cm = confusion_matrix(y_test, preds)
         print(cm)
 
-        plt.figure(figsize=(5, 7))
+        shape = X_train.shape
+        number_of_col = shape[1] - 2
+
+        # Print
+        self.two_dim_graph_train(X_train, y_train, training_type, number_of_col)
+
+        appPlot = tk.Tk()
+        treePlot = tk.Tk()
+
+        plot = plt.figure(figsize=(5, 7))
         ax = sns.distplot(y_test, hist=False, color="r", label="Actual Value")
         sns.distplot(preds, hist=False, color="b", label="Fitted Values", ax=ax)
         plt.title('Actual vs Fitted Values')
         plt.tight_layout()
-        plt.show()
-        plt.close()
+        # test.show()
+
+        canvas = FigureCanvasTkAgg(plot, appPlot)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 
         Tree = training_type.estimators_[5]
-        plt.figure(figsize=(25, 15))
+        treeplot = plt.figure(figsize=(15, 10))
         tree.plot_tree(Tree, filled=True,
                        rounded=True,
                        fontsize=14);
-        plt.show()
-        plt.close()
+
+        canvas = FigureCanvasTkAgg(treeplot, treePlot)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
 
         return training_type, X_train, X_test
 
@@ -297,14 +349,18 @@ class RunModel:
         cm = confusion_matrix(y_test, preds)
         print(cm)
 
-        plt.figure(figsize=(5, 7))
-        ax = sns.distplot(y_test, hist=False, color='r',
-                          label='Actual Value')
-        sns.distplot(preds, hist=False, color='b', label='Fitted Values',
-                     ax=ax)
+        appPlot = tk.Tk()
+
+        plot = plt.figure(figsize=(5, 7))
+        ax = sns.distplot(y_test, hist=False, color="r", label="Actual Value")
+        sns.distplot(preds, hist=False, color="b", label="Fitted Values", ax=ax)
         plt.title('Actual vs Fitted Values')
-        plt.show()
-        plt.close()
+        plt.tight_layout()
+        # test.show()
+
+        canvas = FigureCanvasTkAgg(plot, appPlot)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 
         return training_type, X_train, X_test
 
@@ -333,21 +389,31 @@ class RunModel:
         cm = confusion_matrix(y_test, preds)
         print(cm)
 
-        plt.figure(figsize=(5, 7))
+        appPlot = tk.Tk()
+        treePlot = tk.Tk()
+
+        plot = plt.figure(figsize=(5, 7))
         ax = sns.distplot(y_test, hist=False, color="r", label="Actual Value")
         sns.distplot(preds, hist=False, color="b", label="Fitted Values", ax=ax)
         plt.title('Actual vs Fitted Values')
         plt.tight_layout()
-        plt.show()
-        plt.close()
+        #test.show()
+
+        canvas = FigureCanvasTkAgg(plot, appPlot)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 
         Tree = training_type.estimators_[5]
-        plt.figure(figsize=(25, 15))
+        treeplot = plt.figure(figsize=(15, 10))
         tree.plot_tree(Tree, filled=True,
-                       rounded=True,
-                       fontsize=14);
-        plt.show()
-        plt.close()
+                         rounded=True,
+                         fontsize=14);
+
+
+        canvas = FigureCanvasTkAgg(treeplot, treePlot)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
+
 
         return training_type, X_train, X_test
 
@@ -377,6 +443,19 @@ class RunModel:
             print("Recall Score : ", recall_score(y_test, preds, average='micro'))
         cm = confusion_matrix(y_test, preds)
         print(cm)
+
+        appPlot = tk.Tk()
+
+        plot = plt.figure(figsize=(5, 7))
+        ax = sns.distplot(y_test, hist=False, color="r", label="Actual Value")
+        sns.distplot(preds, hist=False, color="b", label="Fitted Values", ax=ax)
+        plt.title('Actual vs Fitted Values')
+        plt.tight_layout()
+        # test.show()
+
+        canvas = FigureCanvasTkAgg(plot, appPlot)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 
         return clf, X_train, X_test
 
@@ -414,6 +493,25 @@ class RunModel:
 
         cm = confusion_matrix(y_test, preds)
         print(cm)
+
+        shape = X_train.shape
+        number_of_col = shape[1] - 2
+
+        # Print
+        self.two_dim_graph_train(X_train, y_train, clf, number_of_col)
+
+        appPlot = tk.Tk()
+
+        plot = plt.figure(figsize=(5, 7))
+        ax = sns.distplot(y_test, hist=False, color="r", label="Actual Value")
+        sns.distplot(preds, hist=False, color="b", label="Fitted Values", ax=ax)
+        plt.title('Actual vs Fitted Values')
+        plt.tight_layout()
+        # test.show()
+
+        canvas = FigureCanvasTkAgg(plot, appPlot)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 
         return clf, X_train, X_test
 
@@ -538,6 +636,19 @@ class RunModel:
         cm = confusion_matrix(y_test, preds)
         print(cm)
 
+        appPlot = tk.Tk()
+
+        plot = plt.figure(figsize=(5, 7))
+        ax = sns.distplot(y_test, hist=False, color="r", label="Actual Value")
+        sns.distplot(preds, hist=False, color="b", label="Fitted Values", ax=ax)
+        plt.title('Actual vs Fitted Values')
+        plt.tight_layout()
+        # test.show()
+
+        canvas = FigureCanvasTkAgg(plot, appPlot)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+
         return xgb_model, X_train, X_test
 
     def pca_XGBoost(self, features, labels, n_elements_model, chosen_normalise):
@@ -570,6 +681,25 @@ class RunModel:
         cm = confusion_matrix(y_test, preds)
         print(cm)
 
+        shape = X_train.shape
+        number_of_col = shape[1] - 2
+
+        # Print
+        self.two_dim_graph_train(X_train, y_train, xgb_model, number_of_col)
+
+        appPlot = tk.Tk()
+
+        plot = plt.figure(figsize=(5, 7))
+        ax = sns.distplot(y_test, hist=False, color="r", label="Actual Value")
+        sns.distplot(preds, hist=False, color="b", label="Fitted Values", ax=ax)
+        plt.title('Actual vs Fitted Values')
+        plt.tight_layout()
+        # test.show()
+
+        canvas = FigureCanvasTkAgg(plot, appPlot)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+
         return xgb_model, X_train, X_test
 
     # todo PLot is here
@@ -601,7 +731,7 @@ class RunModel:
         shap_values = expShap.shap_values(X_train)
         shap.dependence_plot("SEQN", shap_values[0], X_train)
 
-    def lime_plot(self, training_type, X_train, X_test, features):
+    def lime_plot(self, training_type, X_train, X_test, features, file_name):
         # columns=X_test.columns.values
         X_test = pd.DataFrame(X_test)
         explainer = lime_tabular.LimeTabularExplainer(
@@ -615,4 +745,18 @@ class RunModel:
             data_row=X_test.iloc[1],
             predict_fn=training_type.predict_proba
         )
-        exp.save_to_file('oi.html')
+
+        html_save = FILE_URL + '\\' + file_name + '.html'
+        exp.save_to_file(html_save)
+
+        pdf = HTML_pdf +'\\' + file_name + '.jpg'
+        image_save = HTML_IMAGE_URL +'\\' + file_name
+
+        pdfkit.from_file(html_save, pdf)
+        images = convert_from_path(pdf)
+        for image in images:
+            image.save(image_save, 'JPEG')
+
+
+
+
