@@ -16,8 +16,8 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, Normalizer
 from sklearn.svm import SVC
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import pdfkit
-from pdf2image import convert_from_path
+import imgkit
+
 
 
 imputer = SimpleImputer(strategy='median')
@@ -25,6 +25,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 import lime
 from lime import lime_tabular
 import xgboost as xgb
+
 
 FILE_URL = 'C:\\Users\\marci\\OneDrive\\Other\\Desktop\\Shared\\Tool_Interface\\New_Interface\\Frontend\\HTML_file'
 HTML_IMAGE_URL = 'C:\\Users\\marci\\OneDrive\\Other\\Desktop\\Shared\\Tool_Interface\\New_Interface\\Frontend\\HTML_image'
@@ -749,13 +750,11 @@ class RunModel:
         html_save = FILE_URL + '\\' + file_name + '.html'
         exp.save_to_file(html_save)
 
-        pdf = HTML_pdf +'\\' + file_name + '.jpg'
-        image_save = HTML_IMAGE_URL +'\\' + file_name
+        # pdf = HTML_pdf +'\\' + file_name + '.pdf'
+        image_save = HTML_IMAGE_URL +'\\' + file_name + '.jpg'
 
-        pdfkit.from_file(html_save, pdf)
-        images = convert_from_path(pdf)
-        for image in images:
-            image.save(image_save, 'JPEG')
+        imgkit.from_file(html_save, image_save)
+
 
 
 
